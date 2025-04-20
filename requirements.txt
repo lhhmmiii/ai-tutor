@@ -1,0 +1,6 @@
+mlflow
+dvc
+fastapi
+uvicorn
+docker
+ruff
