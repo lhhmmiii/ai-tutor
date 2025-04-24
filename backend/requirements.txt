@@ -1,0 +1,9 @@
+mlflow
+dvc
+fastapi
+uvicorn
+docker
+ruff
+dotenv
+llama-index
+llama-index-llms-gemini

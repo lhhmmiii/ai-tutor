@@ -2,8 +2,11 @@
 __pycache__/
 *.py[cod]
 
+# Ignore ruff cache
+backend\.ruff_cache
+
 # Ignore virtual environments
 myenv/
 
 # Ignore environment variables file
-.env
+backend/.env
