@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from services.level_analysis_service import LevelAnalysisService
-from schemas.level_analysis_schema import LevelAnalysis
+from writing.services.level_analysis_service import LevelAnalysisService
+from writing.schemas.level_analysis_schema import LevelAnalysis
 
 level_analysis_router = APIRouter(tags = ["level_analysis"])
 level_analysis_service = LevelAnalysisService()

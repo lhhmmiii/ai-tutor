@@ -1,8 +1,8 @@
 from llama_index.llms.gemini import Gemini
 import os
 from dotenv import load_dotenv
-from config.prompts import level_analysis_prompt
-from schemas.level_analysis_schema import LevelAnalysis
+from writing.config.prompts import level_analysis_prompt
+from writing.schemas.level_analysis_schema import LevelAnalysis
 from llama_index.core.program import LLMTextCompletionProgram
 from llama_index.core.output_parsers import PydanticOutputParser
 

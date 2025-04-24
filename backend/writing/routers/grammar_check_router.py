@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from services.grammar_check_service import GrammarCheckService
-from schemas.grammar_check_schema import GrammarCheckResult
+from writing.services.grammar_check_service import GrammarCheckService
+from writing.schemas.grammar_check_schema import GrammarCheckResult
 
 
 grammar_check_router = APIRouter(tags=["grammar_check"])

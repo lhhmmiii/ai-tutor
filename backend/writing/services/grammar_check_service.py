@@ -1,8 +1,8 @@
 from llama_index.llms.gemini import Gemini
 import os
 from dotenv import load_dotenv
-from config.prompts import grammar_check_prompt
-from schemas.grammar_check_schema import GrammarCheckResult
+from writing.config.prompts import grammar_check_prompt
+from writing.schemas.grammar_check_schema import GrammarCheckResult
 from llama_index.core.program import LLMTextCompletionProgram
 from llama_index.core.output_parsers import PydanticOutputParser
 
