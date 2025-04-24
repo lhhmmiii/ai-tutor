@@ -6,7 +6,7 @@ from writing.schemas.grammar_check_schema import GrammarCheckResult
 grammar_check_router = APIRouter(tags=["grammar_check"])
 grammar_check_service = GrammarCheckService()
 
-@grammar_check_router.get("/grammar-check")
+@grammar_check_router.post("/grammar-check")
 async def grammar_check(text: str) -> GrammarCheckResult:
     """
     Check the grammar of the given text using the GrammarCheckService.
