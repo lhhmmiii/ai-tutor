@@ -5,5 +5,11 @@ uvicorn
 docker
 ruff
 dotenv
+bson
+pydantic[email]
+pymongo
+bcrypt
+PyJWT
 llama-index
 llama-index-llms-gemini
+llama-index-storage-chat-store-redis
