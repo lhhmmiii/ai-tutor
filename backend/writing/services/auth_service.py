@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException
 from writing.services.user_service import User
 from writing.schemas.user_schema import UserSchema
 from writing.schemas.auth_schema import LoginResponseSchema
@@ -27,7 +27,6 @@ class Auth:
             if user:
                 if verify_password(query['password'].get_secret_value(), user.password):
                     token = generate_token(username)
-                    print(3333333333333333333)
                     return LoginResponseSchema(user_id = user.user_id, access_token = token)
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
