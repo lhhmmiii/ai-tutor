@@ -3,6 +3,7 @@ import sys
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from writing.routers import grammar_check_router, level_analysis_router, writing_feedback_router,\
                             user_router, auth_router, chat_memory_router, vocabulary_support_router
@@ -10,6 +11,14 @@ from writing.routers import grammar_check_router, level_analysis_router, writing
 
 app = FastAPI()
 
+# Allow CORS for frontend running on a different por
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Allow your frontend's origin
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 
 
 #Add routers

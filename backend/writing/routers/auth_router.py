@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from pydantic import SecretStr, EmailStr
 from writing.services.auth_service import Auth
 from writing.schemas.user_schema import UserSchema
-from writing.schemas.auth_schema import LoginResponseSchema, LogoutResponseSchema
+from writing.schemas.auth_schema import LoginResponseSchema, LogoutResponseSchema, LoginRequest
 from fastapi.security import HTTPAuthorizationCredentials
 from writing.helpers.jwt_token_helper import reusable_oauth2
 
@@ -18,10 +18,9 @@ async def register_user(username: str, password: SecretStr, email: EmailStr,
     created_user = auth.register_user(query_params)
     return created_user
 
-
 @auth_router.post("/login")
-async def login_user(username: str, password: SecretStr) -> LoginResponseSchema:
-    query_params = {'username': username, 'password': password}
+async def login_user(login_data: LoginRequest) -> LoginResponseSchema:
+    query_params = {'username': login_data.username, 'password': login_data.password}
     return auth.login_user(query_params)
 
 
