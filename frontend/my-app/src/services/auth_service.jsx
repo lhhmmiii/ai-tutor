@@ -24,8 +24,17 @@ export async function login({ username, password }) {
     return data;
   }
   
-  export function logout() {
-    // Nếu backend có logout API, bạn có thể gọi ở đây
-    // Hiện tại chỉ xóa localStorage token
-    localStorage.removeItem('token');
+  export async function logout() {
+    const token = localStorage.getItem('access_token');
+    
+    const res = await fetch(`${API_BASE_URL}/logout`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  
+    localStorage.removeItem('access_token');
+    return "Logout successfully"
   }

@@ -1,7 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
+import { logout } from '../services/auth_service';
+import { useNavigate } from 'react-router-dom';
+
 
 function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const links = [
     { name: 'Grammar Check', path: '/' },
@@ -10,10 +14,16 @@ function Sidebar() {
     { name: 'Vocabulary', path: '/vocabulary' },
   ];
 
-  // Hàm xử lý logout (ví dụ)
-  const handleLogout = () => {
-    // TODO: Xử lý logout thực tế ở đây (clear token, redirect,...)
-    alert('Logged out!');
+  const handleLogout = async () => {
+    try {
+      const res = await logout()
+      console.log(res)
+      navigate('/login')
+    }
+    catch (error) {
+      alert(error.message);
+    }
+    
   };
 
   return (
