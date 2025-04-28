@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, SecretStr
 
 class UserSchema(BaseModel):
     user_id: str
@@ -22,7 +22,23 @@ class UserSchema(BaseModel):
             }
         }
 
-class UpdateUserSchema(BaseModel):
+class CreateUserRequest(BaseModel):
+    username: str
+    password: SecretStr
+    email: EmailStr
+    full_name: str
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "username": "LHH",
+                "password": "*******",
+                "email": "lehuuhung@example.com",
+                "full_name": "Le Huu Hung",
+            }
+        }
+
+class UpdateUserResponse(BaseModel):
     user_id: str
     message: str = "User has been updated"
 
@@ -34,7 +50,7 @@ class UpdateUserSchema(BaseModel):
             }
         }
 
-class DeleteUserSchema(BaseModel):
+class DeleteUserResponse(BaseModel):
     user_id: str
     message: str = "User has been deleted"
 
