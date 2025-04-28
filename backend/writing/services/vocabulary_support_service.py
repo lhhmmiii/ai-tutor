@@ -5,28 +5,119 @@ from writing.config.prompts import generate_vocabulary_prompt
 from writing.schemas.vocabulary_support_schema import VocabularyEntry
 from llama_index.core.program import LLMTextCompletionProgram
 from llama_index.core.output_parsers import PydanticOutputParser
+from writing.database import connect_to_mongo
 
 # load environment variables from .env file
 load_dotenv()
 
 class VocabularySupportService:
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key: str = None, db_name: str = '', collection_name: str = ''):
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         self.gemini = Gemini(model = "models/gemini-2.0-flash", api_key=self.api_key)
+        self.collection = connect_to_mongo(db_name, collection_name)
 
-    def generate(self, text: str) -> str:
+    def add_word(self, user_id: str, text: str) -> VocabularyEntry:
         """
         Support user to learn vocabulary more better.
         params:
-            text (str): Word, pharse and sentence(if any)
+            text (str): Word, phrase and sentence (if any)
         returns:
-            str: A meanings, sentence example, synonym(if any), prompt which is used to generate images
+            VocabularyEntry: The vocabulary entry with meaning, examples, synonyms, and image prompt
         """
+        # Giả sử bạn lấy từ result.word từ LLM
         program = LLMTextCompletionProgram.from_defaults(
-            output_parser = PydanticOutputParser(output_cls=VocabularyEntry),
-            prompt_template_str = generate_vocabulary_prompt,
+            output_parser=PydanticOutputParser(output_cls=VocabularyEntry),
+            prompt_template_str=generate_vocabulary_prompt,
             verbose=True,
-            llm = self.gemini,
+            llm=self.gemini,
         )
-        response = program(text = text)
-        return response
+        result = program(text=text)
+
+        # Kiểm tra trùng từ
+        existing = self.collection.find_one({"user_id": user_id, "word": result.word})
+        if existing:
+            # Nếu đã có, trả về luôn mà không insert
+            existing.pop("_id", None)
+            return VocabularyEntry(**existing)
+
+        query = {
+            "user_id": user_id,
+            "word": result.word,
+            "meaning_vn": result.meaning_vn,
+            "sample_sentence": result.sample_sentence,
+            "synonyms": result.synonyms,
+            "image_idea": result.image_idea,
+            "additional_examples": result.additional_examples
+        }
+        self.collection.insert_one(query)
+        return result
+
+    
+    def get_word(self, user_id: str, word: str) -> VocabularyEntry | None:
+        """
+        Retrieve a specific vocabulary entry for a user by the given word.
+        
+        Params:
+            user_id (str): The ID of the user.
+            word (str): The vocabulary word to find.
+        
+        Returns:
+            VocabularyEntry | None: Returns a VocabularyEntry instance if found, otherwise None.
+        """
+        data = self.collection.find_one({"user_id": user_id, "word": word})
+        if not data:
+            return None
+        data.pop("_id", None)
+        return VocabularyEntry(**data)
+
+
+    def get_words(self, user_id: str) -> list[VocabularyEntry]:
+        """
+        Retrieve all vocabulary entries for a specific user.
+        
+        Params:
+            user_id (str): The ID of the user.
+        
+        Returns:
+            list[VocabularyEntry]: A list of VocabularyEntry objects. Returns an empty list if none found.
+        """
+        cursor = self.collection.find({"user_id": user_id})
+        results = []
+        for data in cursor:
+            data.pop("_id", None)
+            results.append(VocabularyEntry(**data))
+        return results
+
+
+    def update_word(self, user_id: str, word: str, updated_fields: dict) -> bool:
+        """
+        Update fields of a vocabulary entry for a user.
+        
+        Params:
+            user_id (str): The ID of the user.
+            word (str): The vocabulary word to update.
+            updated_fields (dict): A dictionary of fields to update with their new values.
+        
+        Returns:
+            bool: True if the update was successful (found and modified), False otherwise.
+        """
+        result = self.collection.update_one(
+            {"user_id": user_id, "word": word},
+            {"$set": updated_fields}
+        )
+        return result.modified_count > 0
+
+
+    def delete_word(self, user_id: str, word: str) -> bool:
+        """
+        Delete a vocabulary entry for a user by word.
+        
+        Params:
+            user_id (str): The ID of the user.
+            word (str): The vocabulary word to delete.
+        
+        Returns:
+            bool: True if the deletion was successful (found and deleted), False otherwise.
+        """
+        result = self.collection.delete_one({"user_id": user_id, "word": word})
+        return result.deleted_count > 0

@@ -1,5 +1,5 @@
 from writing.database import connect_to_mongo
-from writing.schemas.user_schema import UserSchema, DeleteUserSchema, UpdateUserSchema
+from writing.schemas.user_schema import UserSchema, DeleteUserResponse, UpdateUserResponse
 from writing.helpers.security_helper import hash_password, password_validation
 from typing import List
 from bson import ObjectId
@@ -79,17 +79,17 @@ class User:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
     
-    def update_user(self, user_id: str, user: UserSchema) -> UpdateUserSchema:
+    def update_user(self, user_id: str, user: UserSchema) -> UpdateUserResponse:
         try:
             self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": user.dict()})
             return user_id
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
     
-    def delete_user(self, user_id: str) -> DeleteUserSchema:
+    def delete_user(self, user_id: str) -> DeleteUserResponse:
         try:
             self.collection.delete_one({"_id": ObjectId(user_id)})
-            message = DeleteUserSchema(user_id = user_id)
+            message = DeleteUserResponse(user_id = user_id)
             return message
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
