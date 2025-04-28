@@ -1,4 +1,4 @@
-from .grammar_check_schema import GrammarCheckResult, GrammarIssue
+from .grammar_check_schema import GrammarCheckResult, GrammarIssue, UpdateGrammarRequest, GrammarResponse
 from .level_analysis_schema import LevelAnalysis
 from .writing_feedback_schema import WritingFeedback
 from .user_schema import UserSchema, CreateUserRequest, UpdateUserResponse, DeleteUserResponse
@@ -8,6 +8,8 @@ from .vocabulary_support_schema import VocabularyEntry
 __all__ = [
     "GrammarCheckResult",
     "GrammarIssue",
+    "UpdateGrammarRequest",
+    "GrammarResponse",
     "LevelAnalysis",
     "WritingFeedback",
     "UserSchema",

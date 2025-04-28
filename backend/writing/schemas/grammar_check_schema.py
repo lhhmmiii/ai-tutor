@@ -32,3 +32,28 @@ class GrammarCheckResult(BaseModel):
                 ]
             }
         }
+
+class UpdateGrammarRequest(BaseModel):
+    grammar_id: str
+    grammar: GrammarCheckResult
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "grammar_id": "124",
+                "grammar": {
+                    "corrected_text": "She goes to the store.",
+                    "issues_found": [
+                        {
+                            "original": "She go to the store.",
+                            "corrected": "She goes to the store.",
+                            "explanation": "Subject-verb agreement error."
+                        }
+                    ]
+                }
+            }
+        }
+
+class GrammarResponse(BaseModel):
+    grammar_id: str
+    message: str
