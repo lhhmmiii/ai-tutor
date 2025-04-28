@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import TextAreaWithButton from '../components/TextAreaWithButton'
 import ErrorList from '../components/ErrorList'
+import Chatbot from '../components/Chatbot' // thêm
 
 function GrammarCheck() {
   const [text, setText] = useState('')
@@ -17,7 +18,9 @@ function GrammarCheck() {
   }
 
   return (
-    <div className="w-full min-h-full">
+    <div className="w-full min-h-screen relative bg-indigo-50">
+      <Chatbot /> {/* chatbot nè */}
+
       <h1 className="text-4xl font-extrabold text-blue-900 mb-10 text-center select-none">
         Grammar Check
       </h1>

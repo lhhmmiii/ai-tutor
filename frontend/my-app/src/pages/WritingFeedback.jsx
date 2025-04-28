@@ -1,7 +1,7 @@
-// src/pages/WritingFeedback.jsx
 import { useState } from 'react'
 import TextAreaWithButton from '../components/TextAreaWithButton'
 import FeedbackResult from '../components/FeedbackResult'
+import Chatbot from '../components/Chatbot' // <<< Thêm nè
 
 function WritingFeedback() {
   const [text, setText] = useState('')
@@ -13,7 +13,9 @@ function WritingFeedback() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-8 bg-indigo-50 rounded-lg shadow-lg min-h-screen">
+    <div className="max-w-3xl mx-auto p-8 bg-indigo-50 rounded-lg shadow-lg min-h-screen relative">
+      <Chatbot /> {/* Thêm Chatbot */}
+
       <h2 className="text-4xl font-extrabold mb-8 text-center text-indigo-700">
         Writing Feedback
       </h2>
