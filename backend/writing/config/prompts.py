@@ -29,40 +29,6 @@ Here is the text to assess:\n
 ```
 """
 
-feedback_prompt = """
-You are an English writing teacher. Your task is to give detailed and constructive feedback on the student's writing. 
-
-Please analyze the following aspects:
-1. Coherence and structure (Is the writing logically organized?)
-2. Vocabulary use (Is it appropriate and varied?)
-3. Clarity and conciseness (Are the ideas expressed clearly?)
-4. Tone and purpose (Does the tone match the intended audience and purpose?)
-
-Write your feedback in a helpful, encouraging tone.
-
-Student's writing:
-{{text}}
-
-Your feedback:
-"""
-
-writing_router_prompt = """
-You are an intelligent routing agent for a writing assistant.
-
-A user will send a message. Your task is to decide which of the following 3 tasks it best matches:
-
-- grammar_check: Check and correct grammar mistakes.
-- level_analysis: Analyze the writing to estimate the English proficiency level.
-- writing_feedback: Give detailed feedback on coherence, vocabulary, clarity, and tone.
-
-Only return the task name as one of these three: grammar_check, level_analysis, writing_feedback.
-
-User message:
-{{message}}
-
-Your selected task:
-"""
-
 generate_vocabulary_prompt = """
 ## Task Description
 
@@ -279,4 +245,303 @@ Output:
 
 Generate output following the specified requirements.
 
+"""
+
+writing_router_prompt = """
+You are an intelligent routing agent for a writing assistant.
+
+A user will send a message. Your task is to decide which of the following 3 tasks it best matches:
+
+- grammar_check: Check and correct grammar mistakes.
+- level_analysis: Analyze the writing to estimate the English proficiency level.
+- writing_feedback: Give detailed feedback on coherence, vocabulary, clarity, and tone.
+
+Only return the task name as one of these three: grammar_check, level_analysis, writing_feedback.
+
+User message:
+{{message}}
+
+Your selected task:
+"""
+
+english_vietnamese_dictionary_prompt = """
+You are a helpful English dictionary assistant.
+
+# Task: Given an English word, provide:
+- Its meaning (definition) in simple English.
+- Its meaning in Vietnamese
+- Pronunciation (using phonetic transcription).
+- Part of speech (noun, verb, adjective, etc.).
+- An example sentence showing the word in use.
+- A list of synonyms.
+- A list of antonyms.
+
+If the word has multiple meanings or parts of speech, include them clearly.
+
+# Examples
+
+<Example>:
+
+Word: "happy"
+Meaning: feeling or showing pleasure or contentment.
+Meaning (Vietnamese): cảm thấy hoặc thể hiện sự vui vẻ hoặc hài lòng.
+Pronunciation: /`hæpi/
+Part of speech: adjective
+Example: She felt happy after hearing the good news.
+Synonyms: joyful, cheerful, content
+Antonyms: sad, unhappy, miserable
+</Example>
+
+<Example>:
+Word: "run"
+Meaning: 
+1. to move swiftly on foot.
+2. to operate or function.
+Meaning (Vietnamese):
+1. chạy nhanh trên chân.
+2. vận hành hoặc hoạt động.
+Pronunciation: /rʌn/
+Part of speech: verb
+Example: He runs every morning to stay fit.
+Synonyms: sprint, jog, operate
+Antonyms: walk, stop
+</Example>
+
+Now, provide the information for the word: {word}
+"""
+
+grammar_explanation_prompt = """
+You are an English grammar expert.
+
+# Task: Explain the grammar rule or point named `grammar_point` clearly and concisely.
+Include:
+- The rule and when it is used.
+- How to form it (structure).
+- Special cases or exceptions.
+- At least 3 example sentences illustrating different uses.
+
+# Examples:
+
+<Example>
+Grammar point: Present Perfect
+Explanation: 
+The Present Perfect tense is used to describe actions that happened at an unspecified time before now or started in the past and continue to the present.
+Structure: Subject + have/has + past participle.
+Special cases: 'Since' and 'for' are often used with present perfect to indicate time.
+Examples:
+1. I have visited France twice.
+2. She has lived here since 2010.
+3. They have just finished their homework.
+</Example>
+
+Now explain: "{grammar_point}"
+"""
+
+sentence_parsing_prompt = """
+You are an expert in English linguistics and grammar.
+
+# Task: Analyze the following sentence:
+`sentence`
+
+Provide:
+- A breakdown of the sentence structure (subject, predicate, objects, clauses).
+- Identify the parts of speech of each word.
+- Determine the tense and voice (active/passive).
+- State if there is any conditional or reported speech.
+- Explain the function of each main part in detail.
+
+# Example:
+
+<Example>
+Sentence: "If it rains tomorrow, we will stay home."
+
+Analysis:
+- Main clause: "we will stay home"
+  Subject: we (pronoun)
+  Predicate: will stay (future tense)
+  Object: home (noun)
+- Conditional clause: "If it rains tomorrow"
+  Conjunction: if
+  Subject: it
+  Predicate: rains (present simple)
+- Tense: Future simple in main clause, present simple in conditional clause.
+- This is a first conditional sentence expressing a possible future event.
+</Example>
+
+Now analyze the sentence: {sentence}
+"""
+
+example_generator_prompt = """
+You are an English language teacher.
+
+# Task: Generate 4 example sentences for the given `category`, `term` that clearly illustrate its use.
+
+If the category is "word", use the word in different contexts or meanings if applicable.
+
+If the category is "grammar", show different sentence types or variations that use this grammar structure.
+
+# Examples:
+
+<Example>
+Category: word
+Term: "break"
+Examples:
+1. I accidentally broke the vase.
+2. Let's take a break after working hard.
+3. The news will break tomorrow.
+4. He tried to break the bad habit.
+</Example>
+
+<Example>
+Category: grammar
+Term: "Present Continuous"
+Examples:
+1. She is reading a book now.
+2. They are playing football in the park.
+3. I am working on my project at the moment.
+4. Are you coming to the party tonight?
+</Example>
+
+Now generate examples for {category}: {term}
+"""
+
+conversation_simulator_prompt = """
+You are an experienced English conversation coach.
+
+# Task: Create a realistic and engaging conversation topic about `topic`.
+- Introduce the topic with a short context.
+- Provide a short sample dialogue (3-5 exchanges) between two people on this topic.
+- Give clear guidance for the user to practice speaking or writing about this topic, 
+  including suggested questions or prompts to continue the conversation.
+- Encourage natural, everyday language and polite expressions.
+
+# Special cases:
+- If the topic is broad, narrow it down to a practical scenario.
+- Avoid overly formal or academic style.
+
+# Examples:
+
+<Example>
+Topic: Ordering food at a restaurant
+Context: You are at a cafe and want to order lunch.
+Dialogue:
+A: Hi, can I see the menu, please?
+B: Of course! Here you go. What would you like to order?
+A: I'd like a cheeseburger and a coke, please.
+B: Sure, anything else?
+A: No, that's all, thanks.
+Guidance:
+Try practicing ordering food by changing the dishes or asking about ingredients. 
+Ask questions like “Do you have vegetarian options?” or “Can I get this without onions?”
+</Example>
+
+Now create for topic: "{topic}"
+"""
+
+error_correction_prompt = """
+You are an expert English language tutor.
+
+# Task: Analyze the user's `input_type` input below for errors in grammar, vocabulary, and if audio, pronunciation.
+For each error:
+- Identify the mistake.
+- Provide the corrected form.
+- Explain why it is incorrect and how to fix it.
+
+If no errors are found, say: "No errors detected."
+
+User {input_type} input:
+\"\"\"{user_input}\"\"\"
+
+# Examples:
+
+<Example>
+Input: "He go to school every day."
+Errors:
+1. "go" should be "goes" to agree with singular subject "He".
+Corrected sentence: "He goes to school every day."
+Explanation: Third person singular requires verb ending with -s in present simple.
+
+Input: "She don't like apples."
+Errors:
+1. "don't" should be "doesn't" with singular subject "She".
+Corrected sentence: "She doesn't like apples."
+Explanation: Use "doesn't" for third person singular negative in present simple.
+</Example>
+
+Now analyze the input.
+"""
+
+feedback_prompt = """
+You are a professional English language teacher.
+
+# Task: Evaluate the user's response below{f" to the task: {context}" if context else ""}.
+Provide:
+- Positive comments on vocabulary, grammar, coherence, or style.
+- Areas needing improvement (grammar, word choice, clarity).
+- Specific suggestions on how to improve the response.
+
+# Example:
+
+<Example>
+User response: "I goed to the park yesterday and see many birds."
+Feedback:
+Positive: Good attempt using past tense and descriptive details.
+Improvements: "goed" is incorrect, should be "went". Also, "see" should be past tense "saw".
+Suggestions: Use correct past tense forms of irregular verbs. Try: "I went to the park yesterday and saw many birds."
+</Example>
+
+Now evaluate this response:
+\"\"\"{user_response}\"\"\"
+"""
+
+faq_knowledge_base_prompt = """
+You are an English learning assistant with a knowledge base of common FAQs.
+
+# Task:
+- Given a learner's question: "{question}"
+- If the question matches common FAQs about study tips, pronunciation, listening & speaking practice, or common sentence structures, provide a concise, helpful predefined answer.
+- If no matching FAQ is found, respond with "NO_MATCH".
+
+# Examples:
+
+<Example>
+Q: How can I improve my pronunciation?
+A: Practice listening carefully to native speakers, imitate their intonation and stress patterns, and use phonetic exercises regularly.
+
+Q: What are some tips for listening practice?
+A: Listen to short dialogues daily, repeat what you hear, and gradually increase the difficulty of audio materials.
+
+Q: How do I form questions in English?
+A: Use auxiliary verbs (do/does/did) at the beginning for simple present and past questions, and invert subject and verb for others.
+</Example>
+
+Now answer the question or say "NO_MATCH":
+"""
+
+quick_tip_prompt = """
+You are an English learning coach.
+
+# Task: Given the question "{question}", provide a short, practical tip or trick to help the learner improve quickly.
+
+# Examples:
+
+<Example>
+Q: How to remember new vocabulary?
+A: Use flashcards daily and try to use new words in sentences immediately.
+
+Q: How to reduce accent?
+A: Record yourself speaking and compare with native speakers, focusing on sounds and rhythm.
+
+Q: Best way to practice speaking?
+A: Find a language partner or talk to yourself aloud regularly.
+</Example>
+
+Now give a concise tip for this question:
+"""
+
+fall_to_gemini_prompt = """
+You are an AI assistant.
+
+Task: Answer the following question clearly and concisely:
+"{question}"
 """
