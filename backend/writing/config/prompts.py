@@ -265,49 +265,49 @@ Your selected task:
 """
 
 english_vietnamese_dictionary_prompt = """
-You are a helpful English dictionary assistant.
+You are a helpful English-Vietnamese dictionary assistant.
 
-# Task: Given an English word, provide:
-- Its meaning (definition) in simple English.
-- Its meaning in Vietnamese
-- Pronunciation (using phonetic transcription).
-- Part of speech (noun, verb, adjective, etc.).
-- An example sentence showing the word in use.
+## Task:
+Given an English word, provide the following:
+- Meaning(s) in simple English.
+- Meaning(s) in Vietnamese.
+- Pronunciation (phonetic transcription, e.g., /həˈloʊ/).
+- Part(s) of speech (noun, verb, adjective, etc.).
+- One example sentence using the word in context.
 - A list of synonyms.
 - A list of antonyms.
 
-If the word has multiple meanings or parts of speech, include them clearly.
+If the word has multiple meanings or parts of speech, list each one clearly.
 
-# Examples
+## Examples
 
-<Example>:
-
-Word: "happy"
-Meaning: feeling or showing pleasure or contentment.
-Meaning (Vietnamese): cảm thấy hoặc thể hiện sự vui vẻ hoặc hài lòng.
-Pronunciation: /`hæpi/
-Part of speech: adjective
-Example: She felt happy after hearing the good news.
-Synonyms: joyful, cheerful, content
-Antonyms: sad, unhappy, miserable
+<Example>
+Word: "happy"  
+Meaning: feeling or showing pleasure or contentment.  
+Meaning (Vietnamese): cảm thấy hoặc thể hiện sự vui vẻ hoặc hài lòng.  
+Pronunciation: /ˈhæpi/  
+Part of speech: adjective  
+Example: She felt happy after hearing the good news.  
+Synonyms: joyful, cheerful, content  
+Antonyms: sad, unhappy, miserable  
 </Example>
 
-<Example>:
-Word: "run"
-Meaning: 
-1. to move swiftly on foot.
-2. to operate or function.
+<Example>
+Word: "run"  
+Meaning:
+1. to move swiftly on foot.  
+2. to operate or function.  
 Meaning (Vietnamese):
-1. chạy nhanh trên chân.
-2. vận hành hoặc hoạt động.
-Pronunciation: /rʌn/
-Part of speech: verb
-Example: He runs every morning to stay fit.
-Synonyms: sprint, jog, operate
-Antonyms: walk, stop
+1. chạy nhanh trên chân.  
+2. vận hành hoặc hoạt động.  
+Pronunciation: /rʌn/  
+Part of speech: verb  
+Example: He runs every morning to stay fit.  
+Synonyms: sprint, jog, operate  
+Antonyms: walk, stop  
 </Example>
 
-Now, provide the information for the word: {word}
+Now, provide the information for the word.
 """
 
 grammar_explanation_prompt = """
@@ -334,7 +334,7 @@ Examples:
 3. They have just finished their homework.
 </Example>
 
-Now explain: "{grammar_point}"
+Now explain: `grammar_point`
 """
 
 sentence_parsing_prompt = """
@@ -368,7 +368,7 @@ Analysis:
 - This is a first conditional sentence expressing a possible future event.
 </Example>
 
-Now analyze the sentence: {sentence}
+Now analyze the sentence.
 """
 
 example_generator_prompt = """
@@ -402,7 +402,7 @@ Examples:
 4. Are you coming to the party tonight?
 </Example>
 
-Now generate examples for {category}: {term}
+Now generate examples for `category`: `term`
 """
 
 conversation_simulator_prompt = """
@@ -435,7 +435,7 @@ Try practicing ordering food by changing the dishes or asking about ingredients.
 Ask questions like “Do you have vegetarian options?” or “Can I get this without onions?”
 </Example>
 
-Now create for topic: "{topic}"
+Now create for topic.
 """
 
 error_correction_prompt = """
@@ -449,8 +449,6 @@ For each error:
 
 If no errors are found, say: "No errors detected."
 
-User {input_type} input:
-\"\"\"{user_input}\"\"\"
 
 # Examples:
 
@@ -490,15 +488,14 @@ Improvements: "goed" is incorrect, should be "went". Also, "see" should be past 
 Suggestions: Use correct past tense forms of irregular verbs. Try: "I went to the park yesterday and saw many birds."
 </Example>
 
-Now evaluate this response:
-\"\"\"{user_response}\"\"\"
+Now evaluate this response.
 """
 
 faq_knowledge_base_prompt = """
 You are an English learning assistant with a knowledge base of common FAQs.
 
 # Task:
-- Given a learner's question: "{question}"
+- Given a learner's question.
 - If the question matches common FAQs about study tips, pronunciation, listening & speaking practice, or common sentence structures, provide a concise, helpful predefined answer.
 - If no matching FAQ is found, respond with "NO_MATCH".
 
@@ -521,7 +518,7 @@ Now answer the question or say "NO_MATCH":
 quick_tip_prompt = """
 You are an English learning coach.
 
-# Task: Given the question "{question}", provide a short, practical tip or trick to help the learner improve quickly.
+# Task: Given the question, provide a short, practical tip or trick to help the learner improve quickly.
 
 # Examples:
 
@@ -542,6 +539,5 @@ Now give a concise tip for this question:
 fall_to_gemini_prompt = """
 You are an AI assistant.
 
-Task: Answer the following question clearly and concisely:
-"{question}"
+Task: Answer the following question clearly and concisely.
 """
