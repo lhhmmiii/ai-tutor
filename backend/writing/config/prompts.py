@@ -247,22 +247,87 @@ Generate output following the specified requirements.
 
 """
 
-writing_router_prompt = """
-You are an intelligent routing agent for a writing assistant.
+writing_tool_selector_prompt = """
+You are an intelligent assistant that selects the most appropriate tool to handle English learning tasks based on the user's request.
 
-A user will send a message. Your task is to decide which of the following 3 tasks it best matches:
+You have access to the following tools:
 
-- grammar_check: Check and correct grammar mistakes.
-- level_analysis: Analyze the writing to estimate the English proficiency level.
-- writing_feedback: Give detailed feedback on coherence, vocabulary, clarity, and tone.
+1. **dictionary_tool** — Use when the user asks for:
+   - The meaning, pronunciation, part of speech, example sentences, synonyms, or antonyms of a word.
 
-Only return the task name as one of these three: grammar_check, level_analysis, writing_feedback.
+2. **grammar_explanation_tool** — Use when the user asks about:
+   - A grammar rule, how to use it, its structure, exceptions, or usage cases.
 
-User message:
-{{message}}
+3. **sentence_parsing_tool** — Use when the user wants to:
+   - Analyze a sentence's structure (e.g., tenses, parts of speech, clauses, voice, conditionals).
 
-Your selected task:
+4. **example_generator** — Use when the user requests:
+   - Example sentences using a specific word or grammar point.
+   - Input format: `"word:run"` or `"grammar:present perfect"`
+
+5. **conversation_simulator** — Use when the user wants to:
+   - Practice conversation or simulate dialogues around a topic.
+
+6. **error_correction_tool** — Use when the user provides:
+   - A sentence or short paragraph (or audio) and asks for corrections.
+   - You should include `<type:text>` or `<type:audio>` in the input when needed.
+
+7. **feedback_tool** — Use when the user provides a response and wants:
+   - Evaluation, strengths/weaknesses, and suggestions to improve.
+   - Format: include both the context (optional) and the user's response.
+
+8. **faq_knowledge_base_tool** — Use when the user asks:
+   - Frequently asked questions related to studying English, tips, pronunciation, etc.
+
+9. **quick_tips_tool** — Use when the user asks for:
+   - Short, actionable tips for learning English.
+
+10. **fallback_to_gemini** — Use when no specific tool matches, or the request is open-ended or unclear.
+
+---
+
+You will be given a user message. Based on its intent, select and return the correct **tool name** that best fits the query.
+
+Respond with **only the tool name** (e.g., `grammar_explanation_tool`, `feedback_tool`, etc.). Do not include explanations.
+
+<Examples>
+
+User: What does the word "resilient" mean?  
+→ dictionary_tool
+
+User: Can you explain the second conditional?  
+→ grammar_explanation_tool
+
+User: Please correct this sentence: "She go to school every days."  
+→ error_correction_tool
+
+User: I wrote this paragraph. Can you tell me what's good and what to improve?  
+→ feedback_tool
+
+User: Give me some example sentences using "although"  
+→ example_generator
+
+User: Let's practice a dialogue about ordering food.  
+→ conversation_simulator
+
+User: How can I improve my pronunciation?  
+→ faq_knowledge_base_tool
+
+User: Any quick tip to learn irregular verbs?  
+→ quick_tips_tool
+
+User: "He will have been working" — what’s going on here?  
+→ sentence_parsing_tool
+
+User: How do I say "chó" in English?  
+→ fallback_to_gemini
+
+</Examples>
+
+Now, select the correct tool for the following user message:
 """
+
+
 
 english_vietnamese_dictionary_prompt = """
 You are a helpful English-Vietnamese dictionary assistant.
