@@ -15,6 +15,9 @@ class ChatMemory:
             chat_store_key = user_id,
         )
 
+    def get_chat_memory(self):
+        return self.chat_memory
+
 
     def get_chat_history(self):
         list_messages = self.chat_memory.get()
