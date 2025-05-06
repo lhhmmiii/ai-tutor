@@ -1,5 +1,7 @@
-from .writing_agent import writing_agent
+from .writing_agent import WritingAgentHandler
+from .base import BaseAgentHandler
 
 __all__ = [
-    "writing_agent"
+    "BaseAgentHandler",
+    "WritingAgentHandler"
 ]
