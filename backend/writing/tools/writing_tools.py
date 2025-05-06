@@ -3,6 +3,7 @@ from writing.config.prompts import english_vietnamese_dictionary_prompt, grammar
                                    example_generator_prompt, conversation_simulator_prompt, error_correction_prompt,\
                                    feedback_prompt, faq_knowledge_base_prompt, quick_tip_prompt, fall_to_gemini_prompt
 
+from typing import List, Callable
 
 class WritingTools:
     def __init__(self, llm = None):
@@ -15,6 +16,20 @@ class WritingTools:
             ChatMessage(role="user", content=user_input),
         ]
         return self.llm.chat(messages)
+    
+    def get_tools(self) -> List[Callable]:
+        return [
+            self.dictionary_tool,
+            self.grammar_explanation_tool,
+            self.sentence_parsing_tool,
+            self.example_generator,
+            self.conversation_simulator,
+            self.error_correction_tool,
+            self.feedback_tool,
+            self.faq_knowledge_base_tool,
+            self.quick_tips_tool,
+            self.fallback_to_gemini,
+        ]
 
     def dictionary_tool(self, word: str) -> str:
         """
