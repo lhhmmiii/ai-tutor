@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, use } from 'react'
+import { WritingAgent } from '../services/writing_service'
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false)
@@ -14,19 +15,27 @@ export default function Chatbot() {
     }
   }, [messages, isOpen])
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!input.trim()) return
     const userMsg = { sender: 'user', text: input }
     setMessages((prev) => [...prev, userMsg])
     setInput('')
-
-    setTimeout(() => {
+    const user_id = localStorage.getItem('user_id');
+    try {
+      const botResponse = await WritingAgent(user_id, input)
       const botMsg = {
         sender: 'bot',
-        text: `You asked about "${input}". Here’s some info for you!`,
+        text: botResponse || "Sorry, I couldn't understand that.",
       }
+  
       setMessages((prev) => [...prev, botMsg])
-    }, 1000)
+    } catch (error) {
+      const errorMsg = {
+        sender: 'bot',
+        text: 'There was an error processing your request.',
+      }
+      setMessages((prev) => [...prev, errorMsg])
+    }
   }
 
   return (

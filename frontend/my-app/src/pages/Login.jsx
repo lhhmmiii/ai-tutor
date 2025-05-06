@@ -22,6 +22,7 @@ export default function Login() {
     try {
       const data = await login(form);
       localStorage.setItem('access_token', data.access_token);
+      localStorage.setItem('user_id', data.user_id)
       setForm({ username: '', password: '' });
       navigate('/');
     } catch (error) {
