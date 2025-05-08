@@ -60,12 +60,78 @@ def get_lesson_links(driver, name, max_attempts=50):
     return links
 
 
-def parse_lesson(driver, url):
-    pass
+def extract_with_hierarchy(elements, level=0):
+    """
+    Recursively extracts text content from HTML elements while maintaining hierarchy.
 
-def crawl_all():
-   pass
+    Args:
+        elements (list): A list of Selenium WebElements to process.
+        level (int, optional): The current indentation level. Defaults to 0.
+
+    Returns:
+        str: A formatted string representation of the extracted content, preserving hierarchy.
+
+    The function processes various HTML tags differently:
+    - Headers (h1-h6): Prefixed with '#' based on their level.
+    - Paragraphs (p): Included as plain text.
+    - Lists (ul, ol): Each item is prefixed with a dash.
+    - Other elements: Processed recursively if they have children, otherwise included as plain text.
+
+    Indentation is used to represent the hierarchy of nested elements.
+    """
+    indent = '  ' * level
+    result = ''
+    for el in elements:
+        tag = el.tag_name.lower()
+        text = el.text.strip()
+
+        if not text:
+            continue
+
+        if tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+            header_level = int(tag[1])
+            result += f"{indent}{'#' * header_level} {text}\n"
+        elif tag == 'p':
+            result += f"{indent}{text}\n"
+        elif tag in ['ul', 'ol']:
+            items = el.find_elements(By.XPATH, './li')
+            for li in items:
+                result += f"{indent}- {li.text.strip()}\n"
+        else:
+            children = el.find_elements(By.XPATH, './*')
+            if children:
+                result += extract_with_hierarchy(children, level + 1)
+            else:
+                result += f"{indent}{text}\n"
+    return result
+
+def parse_lesson(driver, url):
+    """
+    Parse a single grammar lesson page to extract content.
+    
+    Args:
+        driver: Selenium WebDriver instance
+        url: URL of the lesson page to parse
+        
+    Returns:
+        dict: Dictionary containing lesson title, explanation, examples and exercises
+    """
+    driver.get(url)
+    time.sleep(2)  # Wait for page to load
+    
+    try:
+        # Get the lesson title
+        title = driver.find_element(By.CLASS_NAME, 'page-header').text
+        
+        # Get the main content
+        content = driver.find_element(By.CLASS_NAME, 'content')
+        elements = content.find_elements(By.XPATH, './*')
+        text = extract_with_hierarchy(elements)
+        return {'title': title, 'content': text}
+        
+    except Exception as e:
+        print(f"Error parsing lesson at {url}: {str(e)}")
+        return None
 
 if __name__ == "__main__":
-    links = get_lesson_links(init_driver(), names[1])
-    print(links)
+    pass
