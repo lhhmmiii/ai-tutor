@@ -133,5 +133,47 @@ def parse_lesson(driver, url):
         print(f"Error parsing lesson at {url}: {str(e)}")
         return None
 
+def crawl_all(save_dir : str = 'writing/data'):
+    """
+    Crawl all grammar lessons from all sections.
+    
+    This function initializes a web driver, gets lesson links for each grammar section,
+    and parses each lesson page to extract content.
+    
+    Returns:
+        None
+    """
+    driver = init_driver()
+    
+    try:
+        for name in names:
+            print(f"Crawling section: {name}")
+            lesson_links = get_lesson_links(driver, name)
+            
+            # Create the save directory if it doesn't exist
+            os.makedirs(save_dir, exist_ok=True)
+            
+            for url in lesson_links:
+                lesson_data = parse_lesson(driver, url)
+                if lesson_data:
+                    title = lesson_data['title']
+                    content = lesson_data['content']
+                    
+                    # Create a valid filename from the title
+                    filename = "".join(x for x in title if x.isalnum() or x in [' ', '-', '_']).rstrip()
+                    filename = filename.replace(' ', '_') + '.txt'
+                    
+                    # Save the content to a text file
+                    with open(os.path.join(save_dir, filename), 'w', encoding='utf-8') as f:
+                        f.write(content)
+                    
+                    print(f"Saved lesson: {filename}")
+                time.sleep(1)  
+                
+    except Exception as e:
+        print(f"Error during crawling: {str(e)}")
+    finally:
+        driver.quit()
+
 if __name__ == "__main__":
-    pass
+    crawl_all()
