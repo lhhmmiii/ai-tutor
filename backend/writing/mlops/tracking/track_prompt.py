@@ -49,11 +49,11 @@ def tracking_prompt(name: str, template: str, commit_message: str | None = None,
         for key, value in tags.items():
             mlflow.set_tag(key, value)
 
-        # Save template as artifact for clarity
-        path = f"{name}_prompt.txt"
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(template)
-        mlflow.log_artifact(path)
+        # # Save template as artifact for clarity
+        # path = f"{name}_prompt.txt"
+        # with open(path, "w", encoding="utf-8") as f:
+        #     f.write(template)
+        # mlflow.log_artifact(path)
 
         return {"name": name, "status": "logged"}
 
@@ -84,7 +84,7 @@ def tracking_all_prompts():
     # Track each prompt
     tracked_prompts = {}
     for name, template in prompts.items():
-        print(name,111111111111111111111)
+        # print(name,111111111111111111111)
         tracked_prompts[name] = tracking_prompt(
             name=name,
             template=template,

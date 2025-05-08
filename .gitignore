@@ -10,3 +10,6 @@ myenv/
 
 # Ignore environment variables file
 backend/.env
+
+# Ignore data folder
+backend/writing/data/

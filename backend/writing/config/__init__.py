@@ -20,5 +20,4 @@ __all__ = [
     "faq_knowledge_base_prompt",
     "quick_tip_prompt",
     "fall_to_gemini_prompt",
-
 ]

@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.options import Options
 
 BASE_URL = "https://learnenglish.britishcouncil.org/grammar/"
 
-names = ["a1-a2-grammar", "b1-b2-grammar", "c1-grammar", "english-grammar-reference"]
+names = ["a1-a2-grammar", "b1-b2-grammar", "c1-grammar"]
 
 def init_driver():
     """

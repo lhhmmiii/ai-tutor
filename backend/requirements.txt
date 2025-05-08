@@ -7,6 +7,8 @@ ruff
 dotenv
 bson
 pydantic[email]
+selenium
+beautifulsoup4
 pymongo
 bcrypt
 PyJWT
