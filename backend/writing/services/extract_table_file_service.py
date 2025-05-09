@@ -74,19 +74,19 @@ class TableFile(TextExtractor):
         return docs
 
     def _process_data(self, data):
-        list_column_names = data.columns
-        list_values = data.values
-
+        column_names = data.columns
+        values = data.values
+        column_names = [str(col) if isinstance(col, int) else col for col in column_names]
         if not self.is_header:
-            list_column_names = [
-                f"Column {i + 1}" for i in range(len(list_column_names))
+            column_names = [
+                f"Column {i + 1}" for i in range(len(column_names))
             ]
-        elif self.is_header and "Unnamed" in list_column_names[0]:
-            list_column_names = list_values[0]
-            list_values = list_values[1:]
+        elif self.is_header and "Unnamed" in column_names[0]:
+            column_names = values[0]
+            values = values[1:]
 
         text = ""
-        for value in list_values:
-            for i, column_name in enumerate(list_column_names):
+        for value in values:
+            for i, column_name in enumerate(column_names):
                 text += f"{column_name}: {value[i]}\n"
         return text
