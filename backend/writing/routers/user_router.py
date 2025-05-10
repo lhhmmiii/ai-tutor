@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from typing import List
 from writing.services.user_service import User
-from writing.schemas.user_schema import UserSchema, UpdateUserResponse, DeleteUserResponse, CreateUserRequest
+from writing.schemas.user_schema import UserSchema, UpdateUserResponse, DeleteUserResponse,\
+                                        CreateUserRequest, UpdateUserRequest
 from writing.helpers.jwt_token_helper import validate_token
 
 user_router = APIRouter(tags = ["User"])
@@ -11,7 +12,7 @@ user_instance = User(db_name = "AI-Tutor", collection_name = "users")
 @user_router.post("/user")
 async def create_user(request: CreateUserRequest) -> UserSchema:
     query_params = {'username': request.username, 'password': request.password, 'email': request.email,
-                    'full_name': request.full_name, 'role': 'user', 'is_active': False}
+                    'full_name': request.full_name, 'role': 'user', 'is_active': False, 'documents': []}
     created_user = user_instance.create_user(query_params)
     return created_user
 
@@ -35,8 +36,9 @@ async def get_user_by_username(username: str) -> UserSchema:
 
 ## ---------------------- PUT ----------------------
 @user_router.put("/user/{user_id}", dependencies=[Depends(validate_token)])
-async def update_user(user_id: str, user: UserSchema) -> UpdateUserResponse:
-    return user_instance.update_user(user_id, user)
+async def update_user(user_id: str, user: UpdateUserRequest) -> UpdateUserResponse:
+    user_id = user_instance.update_user(user_id, user)
+    return UpdateUserResponse(user_id = user_id)
 
 ## ---------------------- DELETE ----------------------
 @user_router.delete("/user/{user_id}", dependencies=[Depends(validate_token)])
