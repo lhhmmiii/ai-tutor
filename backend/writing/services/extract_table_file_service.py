@@ -18,39 +18,48 @@ class TableFile(TextExtractor):
     def __init__(self, is_header=False):
         self.is_header = is_header
 
+    def set_is_header(self, is_header: bool):
+        self.is_header = is_header
+
     async def extract_text(self, file):
         file_content = await file.read()
         _, file_extension = os.path.splitext(file.filename)
         try:
             byte_stream = BytesIO(file_content)
             if file_extension == ".csv":
-                if not self.is_header:
-                    data = pd.read_csv(byte_stream, header=None)
-                else:
-                    data = pd.read_csv(byte_stream)
+                data = pd.read_csv(byte_stream, header=0 if self.is_header else None)
             elif file_extension in [".xlsx", ".xls"]:
-                all_sheets = pd.read_excel(
-                    byte_stream,
-                    sheet_name=None,
-                    header=None if not self.is_header else 0,
-                )
-                sheet_texts = []
-                sheet_names = []
-                for sheet_name, df in all_sheets.items():
-                    data = delete_meaningless_columns(df)
-                    data = delete_meaningless_rows(data)
-                    sheet_texts.append(self._process_data(data))
-                    sheet_names.append(sheet_name)
-                return sheet_texts, sheet_names
+                return self._process_excel(byte_stream)
             else:
                 raise ValueError("Unsupported file type. Use 'csv' or 'excel'.")
 
-            data = delete_meaningless_columns(data)
-            data = delete_meaningless_rows(data)
-            return [self._process_data(data)], []
+            return self._process_single_sheet(data)
 
         except HTTPException as e:
             raise e
+
+    def _process_excel(self, byte_stream):
+        all_sheets = pd.read_excel(
+            byte_stream,
+            sheet_name=None,
+            header=0 if self.is_header else None
+        )
+        sheet_texts = []
+        sheet_names = []
+        for sheet_name, df in all_sheets.items():
+            processed_data = self._clean_and_process_data(df)
+            sheet_texts.append(processed_data)
+            sheet_names.append(sheet_name)
+        return sheet_texts, sheet_names
+
+    def _process_single_sheet(self, data):
+        processed_data = self._clean_and_process_data(data)
+        return [processed_data], []
+
+    def _clean_and_process_data(self, data):
+        data = delete_meaningless_columns(data)
+        data = delete_meaningless_rows(data)
+        return self._process_data(data)
 
     def supports_file_type(self, file_name):
         _, file_extension = os.path.splitext(file_name)
