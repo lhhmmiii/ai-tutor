@@ -15,3 +15,16 @@ PyJWT
 llama-index
 llama-index-llms-gemini
 llama-index-storage-chat-store-redis
+llama-index-storage-docstore-mongodb
+llama-index-storage-index-store-mongodb
+llama-index-vector-stores-qdrant
+llama-index-embeddings-cohere
+spire-doc
+python-pptx
+Spire.Presentation
+PyMuPDF
+python-multipart
+xlrd
+openpyxl
+dvc
+qdrant-client
