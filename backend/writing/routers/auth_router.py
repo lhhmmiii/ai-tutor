@@ -12,7 +12,7 @@ auth = Auth(db_name = "AI-Tutor", collection_name = "users")
 @auth_router.post("/register")
 async def register_user(request: CreateUserRequest) -> UserSchema:
     query_params = {'username': request.username, 'password': request.password, 'email': request.email,
-                    'full_name': request.full_name, 'role': 'user', 'is_active': False}
+                    'full_name': request.full_name, 'role': 'user', 'is_active': False, 'documents': []}
     created_user = auth.register_user(query_params)
     return created_user
 
