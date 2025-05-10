@@ -13,8 +13,9 @@ async def load_file(
         docs = office_file.create_docs(texts, file_name, user_id)
         return docs
     elif table_file.supports_file_type(file_name):
+        table_file.set_is_header(is_header)
         texts, sheet_names = await table_file.extract_text(
-            file=file, is_header=is_header
+            file=file,
         )
         docs = table_file.create_docs(texts, file_name, sheet_names, user_id)
         return docs
