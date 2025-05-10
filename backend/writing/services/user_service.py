@@ -40,6 +40,7 @@ class User:
                             password = user_data['password'], email = user_data['email'],
                             full_name = user_data['full_name'], role = user_data['role'], 
                             is_active = user_data['is_active'], documents = user_data['documents'])
+            print(user)
             return user
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
@@ -66,15 +67,6 @@ class User:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
         
-    def get_user_by_id(self, user_id):
-        try:
-            user = self.collection.find_one({"_id": ObjectId(user_id)})
-            if not user:
-                raise HTTPException(status_code=404, detail="User is not found")
-            user["_id"] = str(user["_id"])
-            return user
-        except HTTPException as e:
-            raise e
     
     def get_users(self) -> List[UserSchema]:
         try:
@@ -92,8 +84,8 @@ class User:
         
     def update_document_list(self, user_id: str, file_name: str, index_id, ref_doc_ids):
         try:
-            user = self.get_user_by_id(user_id)
-            documents = user.get("documents", [])
+            user = self.get_user(user_id)
+            documents = user.documents
             document_info = {
                 "name": file_name,
                 "index_id": index_id,
@@ -134,7 +126,7 @@ class User:
     def delete_document_list(self, index_id, ref_doc_ids):
         users = self.get_users()
         for user in users:
-            documents = user["documents"]
+            documents = user.documents
             updated_documents = []
 
             for document in documents:
