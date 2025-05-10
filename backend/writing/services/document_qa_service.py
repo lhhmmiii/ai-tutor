@@ -34,14 +34,37 @@ from writing.utils.file_utils import load_file
 
 
 class DocumentQA(BaseQA):
-    def __init__(self, user_id, user_collection, storage_context):
-        self.user = User(user_collection)
+    """A class for handling document-based question answering using vector storage and retrieval.
+    
+    This class provides functionality for:
+    - Creating and managing vector indices for documents
+    - Adding documents to indices
+    - Querying documents using natural language
+    - Managing document metadata and references
+    - Updating and deleting documents
+    
+    The class uses LlamaIndex for vector storage and retrieval, with support for:
+    - HTML, Office, and Table file formats
+    - Chat-based interactions with memory
+    - Metadata filtering for user-specific queries
+    - Batch processing of documents
+    """
+    
+    def __init__(self, user_id: str = '', db_name: str = 'AI-Tutor', user_collection: str = 'users', storage_context = None):
+        """Initialize the DocumentQA service.
+        
+        Args:
+            user_id: The ID of the user
+            user_collection: The user collection for storing user data
+            storage_context: The storage context for vector indices
+        """
+        self.user = User(db_name = db_name, collection_name = user_collection)
         self.user_id = user_id
         self.storage_context = storage_context
         self.html_file = HtmlFile()
         self.table_file = TableFile()
         self.office_file = OfficeFile()
-        self.chat_memory = ChatMemory(user_id = user_id)
+        self.chat_memory = ChatMemory(user_id=user_id)
 
 
     def create_index_without_document(self):
@@ -108,12 +131,29 @@ class DocumentQA(BaseQA):
         show_progress: bool = True,
         **insert_kwargs: Any,
     ) -> None:
+        """Add document nodes to an existing index.
+        
+        This method processes a document (from file or URL), splits it into nodes,
+        generates embeddings for each node, and adds them to the vector store and
+        document store. It also updates the index structure and user's document list.
+        
+        Args:
+            index: The index to add nodes to
+            file: Uploaded file containing the document
+            url: URL to fetch document from (if file not provided)
+            is_header: Whether to include headers in document processing
+            embed_model: Model to use for generating embeddings
+            insert_batch_size: Number of nodes to process in each batch
+            show_progress: Whether to show progress during embedding generation
+            **insert_kwargs: Additional arguments to pass to vector store add method
+        """
         try:
-            """Add document to index."""
             index_struct = index.index_struct
             vector_store = index.storage_context.vector_store
             docstore = index.storage_context.docstore
             index_store = index.storage_context.index_store
+            
+            # Load and process document
             docs = await load_file(
                 html_file=self.html_file,
                 table_file=self.table_file,
@@ -124,21 +164,27 @@ class DocumentQA(BaseQA):
                 is_header=is_header,
             )
             nodes = SentenceSplitter().get_nodes_from_documents(docs)
+            
+            # Process nodes in batches
             for nodes_batch in iter_batch(nodes, insert_batch_size):
+                # Generate embeddings for batch
                 nodes_batch = get_node_with_embedding(
                     nodes_batch, embed_model, show_progress
                 )
                 new_ids = vector_store.add(nodes_batch, **insert_kwargs)
 
+                # Add nodes to stores
                 for node, new_id in zip(nodes_batch, new_ids, strict=False):
-                    # NOTE: remove embedding from node to avoid duplication
+                    # Remove embedding to avoid duplication
                     node_without_embedding = node.model_copy()
                     node_without_embedding.embedding = None
 
+                    # Update stores
                     index_struct.add_node(node_without_embedding, text_id=new_id)
                     docstore.add_documents([node_without_embedding], allow_update=True)
                     index_store.add_index_struct(index_struct)
-            # Update User DB
+            
+            # Update user's document list
             ref_doc_ids = self.get_ref_doc_ids_from_node_ids(index.index_id, index)
             self.user.update_document_list(
                 user_id=self.user_id,
@@ -158,9 +204,23 @@ class DocumentQA(BaseQA):
             raise e
 
     def get_nodes_by_ref_doc_id(self, index, ref_doc_id):
-        """Get docstore by ref_doc_id
+        """Get all nodes associated with a specific reference document ID.
+        
+        This method retrieves nodes from the document store that are linked to the given
+        reference document ID. It performs the following steps:
+        1. Gets the node IDs associated with the reference document
+        2. Validates that the node IDs exist in the current index structure
+        3. Retrieves and returns the actual nodes from the document store
+        
         Args:
-          ref_doc_id
+            index: The index containing the document store to search
+            ref_doc_id: The reference document ID to find nodes for
+            
+        Returns:
+            list: The nodes associated with the reference document ID
+            
+        Raises:
+            HTTPException: If there is an error retrieving the nodes
         """
         try:
             node_ids_in_ref_doc = index.docstore.get_ref_doc_info(ref_doc_id).node_ids
@@ -175,9 +235,24 @@ class DocumentQA(BaseQA):
             raise e
 
     def query(self, index, query_str):
-        """Response answer from user query
+        """Process a user query and generate a response using the document index.
+
+        This method performs the following steps:
+        1. Applies metadata filters to restrict the search to the current user's documents.
+        2. Sets up a vector index retriever to find relevant documents.
+        3. Configures node postprocessors to refine the retrieved results.
+        4. Initializes a context-aware chat engine with the retriever, chat memory, and postprocessors.
+        5. Generates and returns a response to the user's query.
+
         Args:
-          query_str: user query
+            index: The document index to search.
+            query_str (str): The user's query string.
+
+        Returns:
+            The chat engine's response to the query.
+
+        Raises:
+            HTTPException: If an error occurs during the query process.
         """
         try:
             metadata_filters = MetadataFilters(
@@ -191,9 +266,9 @@ class DocumentQA(BaseQA):
             )
             chat_memory = self.chat_memory.chat_memory
             chat_engine = ContextChatEngine.from_defaults(
-                retriever = retriever,
-                memory = chat_memory,
-                node_postprocessors = node_postprocessors,
+                retriever=retriever,
+                memory=chat_memory,
+                node_postprocessors=node_postprocessors,
             )
             response = chat_engine.chat(query_str)
             return response
@@ -201,10 +276,22 @@ class DocumentQA(BaseQA):
             raise e
 
     def query_by_ref_doc_id(self, index, ref_doc_id, query_str):
-        """Response answer from user query
+        """Query documents by reference document ID.
+
+        This method retrieves and queries documents based on the provided reference
+        document ID. It filters the documents using metadata, retrieves relevant
+        nodes using a vector store, and processes the query using a retriever query engine.
+
         Args:
-          ref_doc_id: referece document id
-          query_str: user query
+            index: The index object to query.
+            ref_doc_id (str): The reference document ID to filter by.
+            query_str (str): The query string to process.
+
+        Returns:
+            dict: A dictionary containing the response to the query.
+
+        Raises:
+            HTTPException: If there is an error during the query process.
         """
         try:
             metadata_filters = MetadataFilters(
@@ -231,11 +318,24 @@ class DocumentQA(BaseQA):
     def query_by_index_id_and_ref_doc_id(
         self, index, index_id, ref_doc_id, query_str
     ):
-        """Response answer from user query
+        """Query documents by index ID and reference document ID.
+
+        This method retrieves and queries documents based on the provided index ID
+        and reference document ID. It filters the documents using metadata, retrieves
+        relevant nodes using a vector store, and processes the query using a retriever
+        query engine.
+
         Args:
-          index_id: index id
-          ref_doc_id: referece document id
-          query_str: user query
+            index: The index object to query.
+            index_id (str): The ID of the index to query.
+            ref_doc_id (str): The reference document ID to filter by.
+            query_str (str): The query string to process.
+
+        Returns:
+            dict: A dictionary containing the response to the query.
+
+        Raises:
+            HTTPException: If there is an error during the query process.
         """
         try:
             ref_doc_ids = self.get_ref_doc_ids_from_node_ids(index_id, index)
@@ -264,9 +364,22 @@ class DocumentQA(BaseQA):
             raise e
 
     def update_document(self, index, file, url, is_header, embed_model):
-        """Update content by ref_doc_id
+        """Update a document in the index by replacing its content.
+        
+        This method updates a document by:
+        1. Loading and processing the new document file/URL
+        2. Deleting the old document's nodes from the index using its ref_doc_id
+        3. Adding the new document's nodes to the index
+        
         Args:
-            new_document
+            index: The index containing the document to update
+            file: The new document file to replace the old content
+            url: URL to fetch new document from (if file not provided)
+            is_header: Whether to include headers when processing the new document
+            embed_model: Model to use for generating embeddings for new nodes
+            
+        Raises:
+            HTTPException: If there is an error during the update process
         """
         try:
             documents = load_file(
@@ -292,6 +405,19 @@ class DocumentQA(BaseQA):
             raise e
 
     def delete_indexes(self, index):
+        """Delete all indexes and their associated data from storage.
+        
+        This method performs a complete deletion of all indexes and their data by:
+        1. Retrieving all index structures from storage
+        2. Collecting their index IDs
+        3. Iteratively deleting each index using delete_index_by_index_id
+        
+        Args:
+            index: The index containing the storage context to delete from
+            
+        Raises:
+            HTTPException: If there is an error during deletion
+        """
         try:
             index_structs = index.storage_context.index_store.index_structs()
             list_index_id = []
@@ -303,55 +429,104 @@ class DocumentQA(BaseQA):
             raise e
 
     def delete_index_by_index_id(self, index, index_id):
-        """Delete index_store by index_id
+        """Delete an index and all its associated data from storage.
+        
+        This method performs a complete deletion of an index and all its associated data:
+        1. Removes the index from the user's document list
+        2. Retrieves all node IDs associated with the index
+        3. Deletes the index structure from the index store
+        4. Removes all documents from the document store
+        5. Deletes all vector data from the vector store
+        
         Args:
-          index_id
+            index: The index to delete
+            index_id: The ID of the index to delete
+            
+        Raises:
+            HTTPException: If there is an error during deletion
         """
         try:
-            # Delete User DB
+            # Remove index from user's document list
             self.user.delete_document_list(index_id=index_id, ref_doc_ids=None)
-            #
+            
+            # Get all node IDs associated with this index
             node_ids = list(
                 index.storage_context.index_store.get_index_struct(
                     index_id
                 ).nodes_dict.values()
-            )  # node_ids in index_id
-            # Delete index_struct
+            )
+            
+            # Delete index structure
             index.storage_context.index_store.delete_index_struct(index_id)
-            # Delete documents
+            
+            # Delete all associated documents
             for node_id in node_ids:
                 index.docstore.delete_document(node_id)
-            # delete data in vector store
+                
+            # Delete vector data
             index.vector_store.delete_nodes(node_ids)
+            
         except HTTPException as e:
             raise e
 
     def delete_index_by_ref_doc_id(self, index, index_id, ref_doc_id):
-        """Delete docstore by ref_doc_id
+        """Delete a reference document and its associated nodes from the index.
+        
+        This method removes a specific reference document and all its associated nodes from the index.
+        It handles cleanup across multiple storage components:
+        1. Removes the document from the user's document list
+        2. Deletes associated nodes from the index structure
+        3. Removes the index structure if it becomes empty
+        4. Deletes the reference document from the document store
+        5. Removes the document's data from the vector store
+        
         Args:
-          ref_doc_id
+            index: The index containing the reference document
+            index_id: The ID of the index
+            ref_doc_id: The ID of the reference document to delete
+            
+        Raises:
+            HTTPException: If there is an error during deletion
         """
         try:
-            # Delete User DB
+            # Remove document from user's document list
             self.user.delete_document_list(index_id=index_id, ref_doc_ids=[ref_doc_id])
-            # Delete node_ids in index_struct
+            
+            # Remove nodes from index structure
             ref_doc_info = index.docstore.get_ref_doc_info(ref_doc_id)
             if ref_doc_info is not None:
                 for node_id in ref_doc_info.node_ids:
                     index.index_struct.delete(node_id)
+                    
+            # Handle empty index structure
             if index.index_struct.nodes_dict == {}:
                 index_id = index.index_id
                 index.storage_context.index_store.delete_index_struct(index_id)
             else:
                 index.storage_context.index_store.add_index_struct(index.index_struct)
-            # Delete documents in ref_doc_id
+                
+            # Remove document from stores
             index.docstore.delete_ref_doc(ref_doc_id)
-            # delete data in vector store
             index.vector_store.delete(ref_doc_id)
+            
         except HTTPException as e:
             raise e
 
     def load_index_by_index_id(self, index_id=None):
+        """Load an index from storage by its ID.
+        
+        This method loads a vector index from the storage context. If no index_id is provided,
+        it loads the first available index. Otherwise, it loads the specific index requested.
+        
+        Args:
+            index_id (str, optional): The ID of the index to load. If None, loads first available index.
+            
+        Returns:
+            VectorStoreIndex: The loaded index instance
+            
+        Raises:
+            HTTPException: If there is an error loading the index
+        """
         if index_id is None:
             indices = load_indices_from_storage(self.storage_context)
             return indices[0]
@@ -360,6 +535,19 @@ class DocumentQA(BaseQA):
         return index
 
     def get_ref_doc_ids_from_node_ids(self, index_id, index):
+        """Get reference document IDs associated with nodes in an index.
+        
+        This method retrieves all reference document IDs that are associated with
+        the nodes in a given index. It does this by checking which reference documents
+        contain nodes that are present in the index's node dictionary.
+        
+        Args:
+            index_id (str): The ID of the index to check
+            index (VectorStoreIndex): The index instance containing the nodes
+            
+        Returns:
+            list: List of reference document IDs associated with the index's nodes
+        """
         index_struct = index.storage_context.index_store.get_index_struct(index_id)
         node_ids = list(index_struct.nodes_dict.values())
         ref_doc_ids = []
@@ -369,9 +557,23 @@ class DocumentQA(BaseQA):
         return ref_doc_ids
 
     def create_query_engine_tool(self, index):
+        """Create a query engine tool for document-based question answering.
+        
+        This method creates a QueryEngineTool instance that can be used to answer
+        questions based on the documents in the index. The tool is configured to
+        only provide answers from the indexed documents.
+        
+        Args:
+            index (VectorStoreIndex): The index to create the query engine from
+            
+        Returns:
+            QueryEngineTool: A tool configured for document-based question answering
+        """
         query_engine = index.as_query_engine()
-        query_engine_tool = QueryEngineTool.from_defaults(query_engine=query_engine,
-                            name = 'DocumentQA',description = 'Only answer the question\
-                                                                from the documents')
+        query_engine_tool = QueryEngineTool.from_defaults(
+            query_engine=query_engine,
+            name='DocumentQA',
+            description='Only answer the question from the documents'
+        )
         return query_engine_tool
 
