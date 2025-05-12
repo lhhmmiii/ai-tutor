@@ -86,7 +86,7 @@ class GrammarCheckService:
         Raises:
             HTTPException: If retrieval fails.
         """
-        try:
+        try: 
             query = {'user_id': user_id} if user_id else {}
             grammars = list(self.collection.find(query))
             results = []
