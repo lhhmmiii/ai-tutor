@@ -68,10 +68,19 @@ class DocumentQA(BaseQA):
 
 
     def create_index_without_document(self):
-        """Create new index without nodes
+        """Create new index without nodes.
+
+        This method initializes a new VectorStoreIndex without any documents,
+        using the provided storage context.
+
         Args:
-        db_name: Database name
-        collection_name: Collection name
+            None
+
+        Returns:
+            VectorStoreIndex: A new, empty vector index.
+
+        Raises:
+            HTTPException: If there's an error creating the index.
         """
         try:
             index_struct = IndexDict()
@@ -81,15 +90,25 @@ class DocumentQA(BaseQA):
                 show_progress=True,
             )
             return index
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error creating index: {str(e)}")
 
     async def create_index_with_document(self, file, url, is_header):
-        """Create new index with nodes
+        """Create new index with nodes from a document.
+
+        This method creates a new VectorStoreIndex with nodes extracted from
+        the provided document file or URL.
+
         Args:
-            db_name: Database name
-            collection_name: Collection name
-            path: file or directory path
+            file: The document file to process.
+            url: The URL of the document to process (if file is not provided).
+            is_header: Boolean indicating whether to include headers in processing.
+
+        Returns:
+            VectorStoreIndex: A new vector index containing the document's nodes.
+
+        Raises:
+            HTTPException: If there's an error processing the document or creating the index.
         """
         try:
             # Initative
@@ -117,8 +136,8 @@ class DocumentQA(BaseQA):
                 self.user_id, file.filename, index.index_id, ref_doc_ids
             )
             return index
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error creating index with document: {str(e)}")
 
     async def add_nodes_to_index(
         self,
@@ -146,6 +165,9 @@ class DocumentQA(BaseQA):
             insert_batch_size: Number of nodes to process in each batch
             show_progress: Whether to show progress during embedding generation
             **insert_kwargs: Additional arguments to pass to vector store add method
+
+        Raises:
+            HTTPException: If there's an error processing the document or adding nodes to the index.
         """
         try:
             index_struct = index.index_struct
@@ -192,16 +214,29 @@ class DocumentQA(BaseQA):
                 index_id=index.index_id,
                 ref_doc_ids=ref_doc_ids,
             )
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error adding nodes to index: {str(e)}")
 
     def get_nodes(self, index):
+        """Retrieve all nodes from the given index.
+
+        This method fetches all nodes stored in the document store of the provided index.
+
+        Args:
+            index: The index containing the nodes to retrieve.
+
+        Returns:
+            list: A list of all nodes in the index.
+
+        Raises:
+            HTTPException: If there's an error retrieving the nodes.
+        """
         try:
             node_ids = list(index.index_struct.nodes_dict.values())
             nodes = index.docstore.get_nodes(node_ids)
             return nodes
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error retrieving nodes: {str(e)}")
 
     def get_nodes_by_ref_doc_id(self, index, ref_doc_id):
         """Get all nodes associated with a specific reference document ID.
@@ -231,8 +266,8 @@ class DocumentQA(BaseQA):
                 node_ids_in_ref_doc = []
             nodes = index.docstore.get_nodes(node_ids_in_ref_doc)
             return nodes
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error retrieving nodes by reference document ID: {str(e)}")
 
     def query(self, index, query_str):
         """Process a user query and generate a response using the document index.
@@ -272,8 +307,8 @@ class DocumentQA(BaseQA):
             )
             response = chat_engine.chat(query_str)
             return response
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
 
     def query_by_ref_doc_id(self, index, ref_doc_id, query_str):
         """Query documents by reference document ID.
@@ -312,8 +347,8 @@ class DocumentQA(BaseQA):
             )
             response = query_engine.query(query_str)
             return {"response": response.response}
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error querying by reference document ID: {str(e)}")
 
     def query_by_index_id_and_ref_doc_id(
         self, index, index_id, ref_doc_id, query_str
@@ -360,8 +395,8 @@ class DocumentQA(BaseQA):
             )
             response = query_engine.query(query_str)
             return {"response": response.response}
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error querying by index ID and reference document ID: {str(e)}")
 
     def update_document(self, index, file, url, is_header, embed_model):
         """Update a document in the index by replacing its content.
@@ -401,8 +436,8 @@ class DocumentQA(BaseQA):
                 is_header=is_header,
                 embed_model=embed_model,
             )
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error updating document: {str(e)}")
 
     def delete_indexes(self, index):
         """Delete all indexes and their associated data from storage.
@@ -425,8 +460,8 @@ class DocumentQA(BaseQA):
                 list_index_id.append(index_struct.index_id)
             for index_id in list_index_id:
                 self.delete_index_by_index_id(index, index_id)
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error deleting indexes: {str(e)}")
 
     def delete_index_by_index_id(self, index, index_id):
         """Delete an index and all its associated data from storage.
@@ -466,8 +501,8 @@ class DocumentQA(BaseQA):
             # Delete vector data
             index.vector_store.delete_nodes(node_ids)
             
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error deleting index by index ID: {str(e)}")
 
     def delete_index_by_ref_doc_id(self, index, index_id, ref_doc_id):
         """Delete a reference document and its associated nodes from the index.
@@ -509,8 +544,8 @@ class DocumentQA(BaseQA):
             index.docstore.delete_ref_doc(ref_doc_id)
             index.vector_store.delete(ref_doc_id)
             
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error deleting index by reference document ID: {str(e)}")
 
     def load_index_by_index_id(self, index_id=None):
         """Load an index from storage by its ID.
@@ -527,12 +562,15 @@ class DocumentQA(BaseQA):
         Raises:
             HTTPException: If there is an error loading the index
         """
-        if index_id is None:
-            indices = load_indices_from_storage(self.storage_context)
-            return indices[0]
-        else:
-            index = load_index_from_storage(self.storage_context, index_id=index_id)
-        return index
+        try:
+            if index_id is None:
+                indices = load_indices_from_storage(self.storage_context)
+                return indices[0]
+            else:
+                index = load_index_from_storage(self.storage_context, index_id=index_id)
+            return index
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error loading index by index ID: {str(e)}")
 
     def get_ref_doc_ids_from_node_ids(self, index_id, index):
         """Get reference document IDs associated with nodes in an index.
@@ -576,4 +614,3 @@ class DocumentQA(BaseQA):
             description='Only answer the question from the documents'
         )
         return query_engine_tool
-
