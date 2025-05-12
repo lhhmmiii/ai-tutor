@@ -13,10 +13,27 @@ from writing.utils.format_time_utils import _format_file_timestamp
 
 
 class HtmlFile(TextExtractor):
+    """
+    A class for extracting text from HTML files or URLs.
+    """
+
     def __init__(self, default_encoding="utf-8"):
         self.default_encoding = default_encoding
 
     async def extract_text(self, file, url=None):
+        """
+        Extract text from an HTML file or URL.
+
+        Args:
+            file: The HTML file to process.
+            url: The URL to fetch HTML content from.
+
+        Returns:
+            A list containing the extracted text.
+
+        Raises:
+            HTTPException: If there's an error during text extraction.
+        """
         try:
             if url:
                 response = requests.get(url)
@@ -28,10 +45,20 @@ class HtmlFile(TextExtractor):
             text = soup.get_text()
             text = re.sub(r"\n+", "\n", text)
             return [text]
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error extracting text: {str(e)}")
 
     def supports_file_type(self, file_name: str, url: str):
+        """
+        Check if the file type or URL is supported.
+
+        Args:
+            file_name: The name of the file.
+            url: The URL to check.
+
+        Returns:
+            True if the file type or URL is supported, False otherwise.
+        """
         if url:
             return True
         else:
@@ -39,18 +66,36 @@ class HtmlFile(TextExtractor):
             return file_extension == ".html"
 
     def create_docs(self, texts: list[Any], file_name: str, url: str, user_id: str):
-        docs = []
-        for i, text in enumerate(texts):
-            metadata = {}
-            metadata["creation_date"] = _format_file_timestamp(
-                timestamp=datetime.now().timestamp(), include_time=True
-            )
-            if file_name != "":
-                metadata["file_name"] = str(file_name)
-            else:
-                metadata["url"] = str(url)
-            metadata["user_id"] = user_id
-            metadata["source"] = i + 1
-            doc = Document(text=text, extra_info=metadata)
-            docs.append(doc)
-        return docs
+        """
+        Create Document objects from extracted texts.
+
+        Args:
+            texts: List of extracted texts.
+            file_name: Name of the processed file.
+            url: URL of the processed content.
+            user_id: ID of the user who initiated the process.
+
+        Returns:
+            A list of Document objects.
+
+        Raises:
+            HTTPException: If there's an error during document creation.
+        """
+        try:
+            docs = []
+            for i, text in enumerate(texts):
+                metadata = {}
+                metadata["creation_date"] = _format_file_timestamp(
+                    timestamp=datetime.now().timestamp(), include_time=True
+                )
+                if file_name != "":
+                    metadata["file_name"] = str(file_name)
+                else:
+                    metadata["url"] = str(url)
+                metadata["user_id"] = user_id
+                metadata["source"] = i + 1
+                doc = Document(text=text, extra_info=metadata)
+                docs.append(doc)
+            return docs
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error creating documents: {str(e)}")
