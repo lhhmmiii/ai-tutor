@@ -25,50 +25,108 @@ from writing.utils.format_time_utils import _format_file_timestamp
 
 
 class OfficeFile(TextExtractor):
+    """
+    A class for extracting text from various office file formats including PDF, Word, PowerPoint, and plain text files.
+    
+    This class provides methods to:
+    - Extract text from different file types
+    - Create document objects with metadata
+    - Support specific file extensions
+    
+    Attributes:
+        invalide_unicode (str): A Unicode character used to identify invalid text
+    """
+
     def __init__(self):
         self.invalide_unicode = chr(0xFFFD)
 
     async def extract_text(self, file):
-        file_content = await file.read()
-        file_name = file.filename
-        _, file_type = os.path.splitext(file_name)
-        if file_type in [".txt"]:
-            texts = self.extract_text_from_txt(file_content)
+        """
+        Extract text from the given file based on its type.
+        
+        Args:
+            file: The file object to extract text from
+        
+        Returns:
+            list: A list of extracted text strings
+        
+        Raises:
+            HTTPException: If there's an error during text extraction
+        """
+        try:
+            file_content = await file.read()
+            file_name = file.filename
+            _, file_type = os.path.splitext(file_name)
+            if file_type in [".txt"]:
+                texts = self.extract_text_from_txt(file_content)
+            elif file_type in [".doc", ".docx"]:
+                texts = self.extract_text_from_docx(file_content)
+            elif file_type == ".pdf":
+                texts = self.extract_text_from_pdf(file_content)
+            elif file_type == ".pptx":
+                texts = self.extract_text_from_powerpoint(file_content)
+            elif file_type == ".ppt":
+                file_content = convert_ppt_to_pptx_stream(file)
+                texts = self.extract_text_from_powerpoint(file_content)
+            else:
+                raise HTTPException(status_code=400, detail=f"Unsupported file type: {file_type}")
             return texts
-        elif file_type in [".doc", ".docx"]:
-            texts = self.extract_text_from_docx(file_content)
-            return texts
-        elif file_type == ".pdf":
-            texts = self.extract_text_from_pdf(file_content)
-            return texts
-        elif file_type == ".pptx":
-            texts = self.extract_text_from_powerpoint(file_content)
-            return texts
-        elif file_type == ".ppt":
-            file_content = convert_ppt_to_pptx_stream(file)
-            texts = self.extract_text_from_powerpoint(file_content)
-            return texts
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error extracting text: {str(e)}")
 
     def supports_file_type(self, file_name):
+        """
+        Check if the given file type is supported for text extraction.
+        
+        Args:
+            file_name (str): The name of the file to check
+        
+        Returns:
+            bool: True if the file type is supported, False otherwise
+        """
         _, file_extension = os.path.splitext(file_name)
         return file_extension in [".txt", ".doc", ".docx", ".pdf", ".pptx", ".ppt"]
 
     def create_docs(self, texts: list[Any], file_name: str, user_id: str):
+        """
+        Create document objects with metadata from extracted texts.
+        
+        Args:
+            texts (list): List of extracted text strings
+            file_name (str): Name of the original file
+            user_id (str): ID of the user who uploaded the file
+        
+        Returns:
+            list: List of Document objects with metadata
+        """
         docs = []
         for i, text in enumerate(texts):
-            metadata = {}
-            metadata["total_pages"] = len(texts)
-            metadata["creation_date"] = _format_file_timestamp(
-                timestamp=datetime.now().timestamp(), include_time=True
-            )
-            metadata["file_name"] = str(file_name)
-            metadata["user_id"] = user_id
-            metadata["source"] = i + 1
+            metadata = {
+                "total_pages": len(texts),
+                "creation_date": _format_file_timestamp(
+                    timestamp=datetime.now().timestamp(), include_time=True
+                ),
+                "file_name": str(file_name),
+                "user_id": user_id,
+                "source": i + 1
+            }
             doc = Document(text=text, extra_info=metadata)
             docs.append(doc)
         return docs
 
     def extract_text_from_pdf(self, document_content):
+        """
+        Extract text from a PDF document.
+        
+        Args:
+            document_content (bytes): The content of the PDF file
+        
+        Returns:
+            list: List of extracted text strings, one per page
+        
+        Raises:
+            HTTPException: If there's an error during PDF text extraction
+        """
         try:
             document_stream = BytesIO(document_content)
             doc = fitz.open(stream=document_stream, filetype="pdf")
@@ -102,10 +160,22 @@ class OfficeFile(TextExtractor):
                             page_text += text + "\n"
                     list_page_text.append(page_text)
             return list_page_text
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error extracting text from PDF: {str(e)}")
 
     def extract_text_from_docx(self, document_content):
+        """
+        Extract text from a Word document.
+        
+        Args:
+            document_content (bytes): The content of the Word file
+        
+        Returns:
+            list: List of extracted text strings, one per section
+        
+        Raises:
+            HTTPException: If there's an error during Word document text extraction
+        """
         try:
             docstream = DocStream(document_content)
             doc = DocDocument(docstream)
@@ -126,10 +196,22 @@ class OfficeFile(TextExtractor):
                 section_content = re.sub(r"\x0b", "\n", section_content)
                 list_section_content.append(section_content)
             return list_section_content
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error extracting text from Word document: {str(e)}")
 
     def extract_text_from_powerpoint(self, document_content):
+        """
+        Extract text from a PowerPoint presentation.
+        
+        Args:
+            document_content (bytes): The content of the PowerPoint file
+        
+        Returns:
+            list: List of extracted text strings, one per slide
+        
+        Raises:
+            HTTPException: If there's an error during PowerPoint text extraction
+        """
         try:
             document_stream = BytesIO(document_content)
             presentation = PPT_Presentation(document_stream)
@@ -141,13 +223,25 @@ class OfficeFile(TextExtractor):
                         page_text += shape.text + "\n"
                 list_page_text.append(page_text)
             return list_page_text
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error extracting text from PowerPoint: {str(e)}")
 
     def extract_text_from_txt(self, document_content):
+        """
+        Extract text from a plain text file.
+        
+        Args:
+            document_content (bytes): The content of the text file
+        
+        Returns:
+            list: A list containing the extracted text as a single string
+        
+        Raises:
+            HTTPException: If there's an error during text file extraction
+        """
         try:
             file_like_object = BytesIO(document_content)
             text = file_like_object.read().decode("utf-8")
             return [text]
-        except HTTPException as e:
-            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error extracting text from plain text file: {str(e)}")
