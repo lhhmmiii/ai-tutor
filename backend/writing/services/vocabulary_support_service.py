@@ -6,6 +6,7 @@ from writing.schemas.vocabulary_support_schema import VocabularyEntry
 from llama_index.core.program import LLMTextCompletionProgram
 from llama_index.core.output_parsers import PydanticOutputParser
 from writing.database import connect_to_mongo
+from fastapi import HTTPException
 
 # load environment variables from .env file
 load_dotenv()
@@ -24,33 +25,33 @@ class VocabularySupportService:
         returns:
             VocabularyEntry: The vocabulary entry with meaning, examples, synonyms, and image prompt
         """
-        # Giả sử bạn lấy từ result.word từ LLM
-        program = LLMTextCompletionProgram.from_defaults(
-            output_parser=PydanticOutputParser(output_cls=VocabularyEntry),
-            prompt_template_str=generate_vocabulary_prompt,
-            verbose=True,
-            llm=self.gemini,
-        )
-        result = program(text=text)
+        try:
+            program = LLMTextCompletionProgram.from_defaults(
+                output_parser=PydanticOutputParser(output_cls=VocabularyEntry),
+                prompt_template_str=generate_vocabulary_prompt,
+                verbose=True,
+                llm=self.gemini,
+            )
+            result = program(text=text)
 
-        # Kiểm tra trùng từ
-        existing = self.collection.find_one({"user_id": user_id, "word": result.word})
-        if existing:
-            # Nếu đã có, trả về luôn mà không insert
-            existing.pop("_id", None)
-            return VocabularyEntry(**existing)
+            existing = self.collection.find_one({"user_id": user_id, "word": result.word})
+            if existing:
+                existing.pop("_id", None)
+                return VocabularyEntry(**existing)
 
-        query = {
-            "user_id": user_id,
-            "word": result.word,
-            "meaning_vn": result.meaning_vn,
-            "sample_sentence": result.sample_sentence,
-            "synonyms": result.synonyms,
-            "image_idea": result.image_idea,
-            "additional_examples": result.additional_examples
-        }
-        self.collection.insert_one(query)
-        return result
+            query = {
+                "user_id": user_id,
+                "word": result.word,
+                "meaning_vn": result.meaning_vn,
+                "sample_sentence": result.sample_sentence,
+                "synonyms": result.synonyms,
+                "image_idea": result.image_idea,
+                "additional_examples": result.additional_examples
+            }
+            self.collection.insert_one(query)
+            return result
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error adding word: {str(e)}")
 
     
     def get_word(self, user_id: str, word: str) -> VocabularyEntry | None:
@@ -64,11 +65,14 @@ class VocabularySupportService:
         Returns:
             VocabularyEntry | None: Returns a VocabularyEntry instance if found, otherwise None.
         """
-        data = self.collection.find_one({"user_id": user_id, "word": word})
-        if not data:
-            return None
-        data.pop("_id", None)
-        return VocabularyEntry(**data)
+        try:
+            data = self.collection.find_one({"user_id": user_id, "word": word})
+            if not data:
+                raise HTTPException(status_code=404, detail="Word not found")
+            data.pop("_id", None)
+            return VocabularyEntry(**data)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error retrieving word: {str(e)}")
 
 
     def get_words(self, user_id: str) -> list[VocabularyEntry]:
@@ -81,12 +85,15 @@ class VocabularySupportService:
         Returns:
             list[VocabularyEntry]: A list of VocabularyEntry objects. Returns an empty list if none found.
         """
-        cursor = self.collection.find({"user_id": user_id})
-        results = []
-        for data in cursor:
-            data.pop("_id", None)
-            results.append(VocabularyEntry(**data))
-        return results
+        try:
+            cursor = self.collection.find({"user_id": user_id})
+            results = []
+            for data in cursor:
+                data.pop("_id", None)
+                results.append(VocabularyEntry(**data))
+            return results
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error retrieving words: {str(e)}")
 
 
     def update_word(self, user_id: str, word: str, updated_fields: dict) -> bool:
@@ -101,11 +108,16 @@ class VocabularySupportService:
         Returns:
             bool: True if the update was successful (found and modified), False otherwise.
         """
-        result = self.collection.update_one(
-            {"user_id": user_id, "word": word},
-            {"$set": updated_fields}
-        )
-        return result.modified_count > 0
+        try:
+            result = self.collection.update_one(
+                {"user_id": user_id, "word": word},
+                {"$set": updated_fields}
+            )
+            if result.modified_count == 0:
+                raise HTTPException(status_code=404, detail="Word not found or no changes made")
+            return True
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error updating word: {str(e)}")
 
 
     def delete_word(self, user_id: str, word: str) -> bool:
@@ -119,5 +131,10 @@ class VocabularySupportService:
         Returns:
             bool: True if the deletion was successful (found and deleted), False otherwise.
         """
-        result = self.collection.delete_one({"user_id": user_id, "word": word})
-        return result.deleted_count > 0
+        try:
+            result = self.collection.delete_one({"user_id": user_id, "word": word})
+            if result.deleted_count == 0:
+                raise HTTPException(status_code=404, detail="Word not found")
+            return True
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error deleting word: {str(e)}")

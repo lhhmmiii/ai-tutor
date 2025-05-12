@@ -5,6 +5,7 @@ from writing.config.prompts import feedback_prompt
 from writing.schemas.writing_feedback_schema import WritingFeedback
 from llama_index.core.program import LLMTextCompletionProgram
 from llama_index.core.output_parsers import PydanticOutputParser
+from fastapi import HTTPException
 
 # load environment variables from .env file
 load_dotenv()
@@ -22,11 +23,14 @@ class WritingFeedbackService:
         returns:
             str: The feedback on the text.
         """
-        program = LLMTextCompletionProgram.from_defaults(
-            output_parser = PydanticOutputParser(output_cls=WritingFeedback),
-            prompt_template_str = feedback_prompt,
-            verbose=True,
-            llm = self.gemini,
-        )
-        response = program(text = text)
-        return response
+        try:
+            program = LLMTextCompletionProgram.from_defaults(
+                output_parser = PydanticOutputParser(output_cls=WritingFeedback),
+                prompt_template_str = feedback_prompt,
+                verbose=True,
+                llm = self.gemini,
+            )
+            response = program(text = text)
+            return response
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error providing feedback: {str(e)}")
