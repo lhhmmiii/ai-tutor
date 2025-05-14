@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.options import Options
 
 BASE_URL = "https://learnenglish.britishcouncil.org/grammar/"
 
-names = ["a1-a2-grammar", "b1-b2-grammar", "c1-grammar"]
+names = ["a1-a2-grammar", "b1-b2-grammar", "c1-grammar", "english-grammar-reference"]
 
 def init_driver():
     """
@@ -18,6 +18,7 @@ def init_driver():
     # options.add_argument('--headless')  # Optional: Uncomment if you want headless mode
     options.add_argument('--disable-gpu')
     options.add_argument('--no-sandbox')
+    options.add_argument('--enable-unsafe-swiftshader')
     return webdriver.Chrome(options=options)
 
 from selenium.webdriver.common.by import By  # Import By for locating elements
@@ -158,6 +159,8 @@ def crawl_all(save_dir : str = 'writing/data'):
                 if lesson_data:
                     title = lesson_data['title']
                     content = lesson_data['content']
+                    print(1111111111111)
+                    print(content,22222222)
                     
                     # Create a valid filename from the title
                     filename = "".join(x for x in title if x.isalnum() or x in [' ', '-', '_']).rstrip()
