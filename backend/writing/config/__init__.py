@@ -3,8 +3,14 @@ from .prompts import grammar_check_prompt, level_analysis_prompt, feedback_promp
                     sentence_parsing_prompt, example_generator_prompt, conversation_simulator_prompt,\
                     error_correction_prompt, faq_knowledge_base_prompt, quick_tip_prompt,\
                     fall_to_gemini_prompt
+from .llm import gemini
+from .setting import embed_model, setting
 
 __all__ = [
+    # LLM
+    "gemini",
+    "setting",
+    "embed_model",
     "grammar_check_prompt",
     "level_analysis_prompt",
     "feedback_prompt",
