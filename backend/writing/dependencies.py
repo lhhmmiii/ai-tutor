@@ -5,6 +5,7 @@ import qdrant_client
 from dotenv import load_dotenv
 
 from llama_index.core import StorageContext
+from llama_index.graph_stores.neo4j import Neo4jPropertyGraphStore
 from llama_index.storage.docstore.mongodb import MongoDocumentStore
 from llama_index.storage.index_store.mongodb import MongoIndexStore
 from llama_index.vector_stores.qdrant import QdrantVectorStore
@@ -57,6 +58,13 @@ def initialize_storage_context(db_name, collection_name):
     )
     return storage_context
 
+def initialize_graph_store():
+    graph_store = Neo4jPropertyGraphStore(
+        username="neo4j",
+        password= os.getenv("NEO4J_PASSWORD"),
+        url=os.getenv("NEO4J_URI"),
+    )
+    return graph_store  
 
 
 def get_llm(request: Request):
