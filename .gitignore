@@ -13,3 +13,6 @@ backend/.env
 
 # Ignore data folder
 backend/writing/data/
+
+# Ignore Neo4j folder
+data/
