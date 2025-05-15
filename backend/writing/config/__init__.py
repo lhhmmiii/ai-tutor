@@ -1,8 +1,8 @@
-from .prompts import grammar_check_prompt, level_analysis_prompt, feedback_prompt, writing_tool_selector_prompt,\
+from .prompts import grammar_check_prompt, level_analysis_prompt, writing_feedback_prompt, writing_tool_selector_prompt,\
                     generate_vocabulary_prompt, english_vietnamese_dictionary_prompt, grammar_explanation_prompt,\
                     sentence_parsing_prompt, example_generator_prompt, conversation_simulator_prompt,\
                     error_correction_prompt, faq_knowledge_base_prompt, quick_tip_prompt,\
-                    fall_to_gemini_prompt
+                    fall_to_gemini_prompt, feedback_prompt
 from .llm import gemini
 from .setting import embed_model, setting
 
@@ -13,7 +13,7 @@ __all__ = [
     "embed_model",
     "grammar_check_prompt",
     "level_analysis_prompt",
-    "feedback_prompt",
+    "writing_feedback_prompt",
     "writing_tool_selector_prompt",
     "generate_vocabulary_prompt",
     "english_vietnamese_dictionary_prompt",

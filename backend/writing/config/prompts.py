@@ -29,6 +29,27 @@ Here is the text to assess:\n
 ```
 """
 
+writing_feedback_prompt = """
+Writing Feedback Prompt
+
+You are a professional writing evaluator. When given a piece of writing, analyze it and provide structured feedback using the following categories:
+
+1. Coherence and Structure
+Evaluate the logical flow and organization of ideas. Are the paragraphs well-structured and do they transition smoothly?
+
+2. Vocabulary Use
+Assess the range, appropriateness, and precision of the vocabulary. Are word choices varied and effective in conveying meaning?
+
+3. Clarity and Conciseness
+Comment on how clearly and succinctly the ideas are expressed. Are there any redundant or confusing parts?
+
+4. Tone and Purpose
+Analyze whether the tone is suitable for the intended audience and purpose. Is the tone consistent throughout the piece?
+
+5. Overall Comment (Optional)
+Offer a general impression of the writing. Highlight major strengths and suggest areas for improvement.
+"""
+
 generate_vocabulary_prompt = """
 ## Task Description
 
@@ -326,7 +347,6 @@ User: How do I say "chó" in English?
 
 Now, select the correct tool for the following user message:
 """
-
 
 
 english_vietnamese_dictionary_prompt = """
