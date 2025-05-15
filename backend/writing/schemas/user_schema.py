@@ -58,7 +58,6 @@ class UpdateUserRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "user_id": "lhh1323", 
                 "username": "LHH",
                 "password": "*1323",
                 "email": "lehuuhung@example.com",
