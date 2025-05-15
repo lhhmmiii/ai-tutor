@@ -40,7 +40,7 @@ class OfficeFile(TextExtractor):
     def __init__(self):
         self.invalide_unicode = chr(0xFFFD)
 
-    async def extract_text(self, file):
+    async def extract_text(self, file: Any) -> list[str]:
         """
         Extract text from the given file based on its type.
         
@@ -74,7 +74,7 @@ class OfficeFile(TextExtractor):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error extracting text: {str(e)}")
 
-    def supports_file_type(self, file_name):
+    def supports_file_type(self, file_name: str) -> bool:
         """
         Check if the given file type is supported for text extraction.
         
@@ -87,7 +87,7 @@ class OfficeFile(TextExtractor):
         _, file_extension = os.path.splitext(file_name)
         return file_extension in [".txt", ".doc", ".docx", ".pdf", ".pptx", ".ppt"]
 
-    def create_docs(self, texts: list[Any], file_name: str, user_id: str):
+    def create_docs(self, texts: list[Any], file_name: str, user_id: str) -> list[Document]:
         """
         Create document objects with metadata from extracted texts.
         
@@ -114,7 +114,7 @@ class OfficeFile(TextExtractor):
             docs.append(doc)
         return docs
 
-    def extract_text_from_pdf(self, document_content):
+    def extract_text_from_pdf(self, document_content: bytes) -> list[str]:
         """
         Extract text from a PDF document.
         
@@ -163,7 +163,7 @@ class OfficeFile(TextExtractor):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error extracting text from PDF: {str(e)}")
 
-    def extract_text_from_docx(self, document_content):
+    def extract_text_from_docx(self, document_content: bytes) -> list[str]:
         """
         Extract text from a Word document.
         
@@ -199,7 +199,7 @@ class OfficeFile(TextExtractor):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error extracting text from Word document: {str(e)}")
 
-    def extract_text_from_powerpoint(self, document_content):
+    def extract_text_from_powerpoint(self, document_content: bytes) -> list[str]:
         """
         Extract text from a PowerPoint presentation.
         
@@ -226,7 +226,7 @@ class OfficeFile(TextExtractor):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error extracting text from PowerPoint: {str(e)}")
 
-    def extract_text_from_txt(self, document_content):
+    def extract_text_from_txt(self, document_content: bytes) -> list[str]:
         """
         Extract text from a plain text file.
         

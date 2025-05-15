@@ -3,10 +3,10 @@ from writing.config.prompts import english_vietnamese_dictionary_prompt, grammar
                                    example_generator_prompt, conversation_simulator_prompt, error_correction_prompt,\
                                    feedback_prompt, faq_knowledge_base_prompt, quick_tip_prompt, fall_to_gemini_prompt
 
-from typing import List, Callable
+from typing import List, Callable, Optional, Any
 
 class WritingTools:
-    def __init__(self, llm = None):
+    def __init__(self, llm : Optional[Any] = None):
         self.llm = llm
         
 

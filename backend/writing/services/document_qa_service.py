@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import Any
+from typing import Any, Optional, List, Dict, Union
 
 from fastapi import HTTPException
 from llama_index.core import (
@@ -12,6 +12,7 @@ from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.core.chat_engine import ContextChatEngine
 from llama_index.core.data_structs.data_structs import IndexDict
 from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core import StorageContext
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.core.tools.query_engine import QueryEngineTool
@@ -50,7 +51,8 @@ class DocumentQA(BaseQA):
     - Batch processing of documents
     """
     
-    def __init__(self, user_id: str = '', db_name: str = 'AI-Tutor', user_collection: str = 'users', storage_context = None):
+    def __init__(self, user_id: str = '', db_name: str = 'AI-Tutor', user_collection: str = 'users',\
+                 storage_context: Optional[StorageContext] = None) -> None:
         """Initialize the DocumentQA service.
         
         Args:
@@ -67,7 +69,7 @@ class DocumentQA(BaseQA):
         self.chat_memory = ChatMemory(user_id=user_id)
 
 
-    def create_index_without_document(self):
+    def create_index_without_document(self) -> VectorStoreIndex:
         """Create new index without nodes.
 
         This method initializes a new VectorStoreIndex without any documents,
@@ -93,7 +95,7 @@ class DocumentQA(BaseQA):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error creating index: {str(e)}")
 
-    async def create_index_with_document(self, file, url, is_header):
+    async def create_index_with_document(self, file: Any, url: Optional[str] = None, is_header: bool = False) -> VectorStoreIndex:
         """Create new index with nodes from a document.
 
         This method creates a new VectorStoreIndex with nodes extracted from
@@ -141,10 +143,10 @@ class DocumentQA(BaseQA):
 
     async def add_nodes_to_index(
         self,
-        index,
-        file,
-        url,
-        is_header,
+        index: VectorStoreIndex,
+        file: Any,
+        url: Optional[str],
+        is_header: bool,
         embed_model: BaseEmbedding,
         insert_batch_size: int = 2048,
         show_progress: bool = True,
@@ -217,7 +219,7 @@ class DocumentQA(BaseQA):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error adding nodes to index: {str(e)}")
 
-    def get_nodes(self, index):
+    def get_nodes(self, index: VectorStoreIndex) -> List[Any]:
         """Retrieve all nodes from the given index.
 
         This method fetches all nodes stored in the document store of the provided index.
@@ -238,7 +240,7 @@ class DocumentQA(BaseQA):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error retrieving nodes: {str(e)}")
 
-    def get_nodes_by_ref_doc_id(self, index, ref_doc_id):
+    def get_nodes_by_ref_doc_id(self, index: VectorStoreIndex, ref_doc_id: str) -> List[Any]:
         """Get all nodes associated with a specific reference document ID.
         
         This method retrieves nodes from the document store that are linked to the given
@@ -269,7 +271,7 @@ class DocumentQA(BaseQA):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error retrieving nodes by reference document ID: {str(e)}")
 
-    def query(self, index, query_str):
+    def query(self, index: VectorStoreIndex, query_str: str) -> Any:
         """Process a user query and generate a response using the document index.
 
         This method performs the following steps:
@@ -310,7 +312,7 @@ class DocumentQA(BaseQA):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
 
-    def query_by_ref_doc_id(self, index, ref_doc_id, query_str):
+    def query_by_ref_doc_id(self, index: VectorStoreIndex, ref_doc_id: str, query_str: str) -> Dict[str, Any]:
         """Query documents by reference document ID.
 
         This method retrieves and queries documents based on the provided reference
@@ -351,8 +353,8 @@ class DocumentQA(BaseQA):
             raise HTTPException(status_code=500, detail=f"Error querying by reference document ID: {str(e)}")
 
     def query_by_index_id_and_ref_doc_id(
-        self, index, index_id, ref_doc_id, query_str
-    ):
+        self, index: VectorStoreIndex, index_id: str, ref_doc_id: str, query_str: str
+    ) -> Dict[str, Any]:
         """Query documents by index ID and reference document ID.
 
         This method retrieves and queries documents based on the provided index ID
@@ -398,7 +400,7 @@ class DocumentQA(BaseQA):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error querying by index ID and reference document ID: {str(e)}")
 
-    def update_document(self, index, file, url, is_header, embed_model):
+    def update_document(self, index: VectorStoreIndex, file: Any, url: Optional[str], is_header: bool, embed_model: BaseEmbedding) -> None:
         """Update a document in the index by replacing its content.
         
         This method updates a document by:
@@ -439,7 +441,7 @@ class DocumentQA(BaseQA):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error updating document: {str(e)}")
 
-    def delete_indexes(self, index):
+    def delete_indexes(self, index: VectorStoreIndex) -> None:
         """Delete all indexes and their associated data from storage.
         
         This method performs a complete deletion of all indexes and their data by:
@@ -463,7 +465,7 @@ class DocumentQA(BaseQA):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error deleting indexes: {str(e)}")
 
-    def delete_index_by_index_id(self, index, index_id):
+    def delete_index_by_index_id(self, index: VectorStoreIndex, index_id: str) -> None:
         """Delete an index and all its associated data from storage.
         
         This method performs a complete deletion of an index and all its associated data:
@@ -504,7 +506,7 @@ class DocumentQA(BaseQA):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error deleting index by index ID: {str(e)}")
 
-    def delete_index_by_ref_doc_id(self, index, index_id, ref_doc_id):
+    def delete_index_by_ref_doc_id(self, index: VectorStoreIndex, index_id: str, ref_doc_id: str) -> None:
         """Delete a reference document and its associated nodes from the index.
         
         This method removes a specific reference document and all its associated nodes from the index.
@@ -547,7 +549,7 @@ class DocumentQA(BaseQA):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error deleting index by reference document ID: {str(e)}")
 
-    def load_index_by_index_id(self, index_id=None):
+    def load_index_by_index_id(self, index_id: Optional[str] = None) -> VectorStoreIndex:
         """Load an index from storage by its ID.
         
         This method loads a vector index from the storage context. If no index_id is provided,
@@ -572,7 +574,7 @@ class DocumentQA(BaseQA):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error loading index by index ID: {str(e)}")
 
-    def get_ref_doc_ids_from_node_ids(self, index_id, index):
+    def get_ref_doc_ids_from_node_ids(self, index_id: str, index: VectorStoreIndex) -> List[str]:
         """Get reference document IDs associated with nodes in an index.
         
         This method retrieves all reference document IDs that are associated with
@@ -594,7 +596,7 @@ class DocumentQA(BaseQA):
                 ref_doc_ids.append(key)
         return ref_doc_ids
 
-    def create_query_engine_tool(self, index):
+    def create_query_engine_tool(self, index: VectorStoreIndex) -> QueryEngineTool:
         """Create a query engine tool for document-based question answering.
         
         This method creates a QueryEngineTool instance that can be used to answer

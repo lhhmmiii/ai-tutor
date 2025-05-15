@@ -2,7 +2,7 @@ import os
 import sys
 from datetime import datetime
 from io import BytesIO
-
+from typing import Any
 import pandas as pd
 from fastapi import HTTPException
 from llama_index.core import Document
@@ -28,7 +28,7 @@ class TableFile(TextExtractor):
         is_header (bool): Flag indicating whether the file has headers
     """
 
-    def __init__(self, is_header=False):
+    def __init__(self, is_header: bool = False):
         self.is_header = is_header
 
     def set_is_header(self, is_header: bool):
@@ -39,7 +39,7 @@ class TableFile(TextExtractor):
         """
         self.is_header = is_header
 
-    async def extract_text(self, file):
+    async def extract_text(self, file: Any) -> tuple[list[str], list[str]]:
         """
         Extract text from a table file (Excel or CSV).
         
@@ -80,7 +80,7 @@ class TableFile(TextExtractor):
                 detail=f"Error processing table file: {str(e)}"
             )
 
-    def _process_excel(self, byte_stream):
+    def _process_excel(self, byte_stream: BytesIO) -> tuple[list[str], list[str]]:
         """
         Process an Excel file with multiple sheets.
         
@@ -112,7 +112,7 @@ class TableFile(TextExtractor):
                 detail=f"Error processing Excel file: {str(e)}"
             )
 
-    def _process_single_sheet(self, data):
+    def _process_single_sheet(self, data: pd.DataFrame) -> tuple[list[str], list[str]]:
         """
         Process a single sheet of data.
         
@@ -125,7 +125,7 @@ class TableFile(TextExtractor):
         processed_data = self._clean_and_process_data(data)
         return [processed_data], []
 
-    def _clean_and_process_data(self, data):
+    def _clean_and_process_data(self, data: pd.DataFrame) -> str:
         """
         Clean and process the table data.
         
@@ -139,7 +139,7 @@ class TableFile(TextExtractor):
         data = delete_meaningless_rows(data)
         return self._process_data(data)
 
-    def supports_file_type(self, file_name):
+    def supports_file_type(self, file_name: str) -> bool:
         """
         Check if the file type is supported.
         
@@ -181,7 +181,7 @@ class TableFile(TextExtractor):
             docs.append(doc)
         return docs
 
-    def _process_data(self, data):
+    def _process_data(self, data: pd.DataFrame) -> str:
         """
         Process the table data into a text format.
         

@@ -10,17 +10,17 @@ from fastapi import HTTPException
 from llama_index.core import Document
 from writing.services.base_service import TextExtractor
 from writing.utils.format_time_utils import _format_file_timestamp
-
+from typing import Optional, Any
 
 class HtmlFile(TextExtractor):
     """
     A class for extracting text from HTML files or URLs.
     """
 
-    def __init__(self, default_encoding="utf-8"):
+    def __init__(self, default_encoding: Optional[str] = "utf-8"):
         self.default_encoding = default_encoding
 
-    async def extract_text(self, file, url=None):
+    async def extract_text(self, file: Any, url: Optional[str] = None) -> list[str]:
         """
         Extract text from an HTML file or URL.
 
@@ -48,7 +48,7 @@ class HtmlFile(TextExtractor):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error extracting text: {str(e)}")
 
-    def supports_file_type(self, file_name: str, url: str):
+    def supports_file_type(self, file_name: str, url: str) -> bool:
         """
         Check if the file type or URL is supported.
 
@@ -65,7 +65,7 @@ class HtmlFile(TextExtractor):
             _, file_extension = os.path.splitext(file_name)
             return file_extension == ".html"
 
-    def create_docs(self, texts: list[Any], file_name: str, url: str, user_id: str):
+    def create_docs(self, texts: list[Any], file_name: str, url: str, user_id: str) -> list[Document]:
         """
         Create Document objects from extracted texts.
 

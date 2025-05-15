@@ -7,12 +7,12 @@ from llama_index.core.program import LLMTextCompletionProgram
 from llama_index.core.output_parsers import PydanticOutputParser
 from writing.database import connect_to_mongo
 from fastapi import HTTPException
-
+from typing import Optional
 # load environment variables from .env file
 load_dotenv()
 
 class VocabularySupportService:
-    def __init__(self, api_key: str = None, db_name: str = '', collection_name: str = ''):
+    def __init__(self, api_key: Optional[str] = None, db_name: str = '', collection_name: str = ''):
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         self.gemini = Gemini(model = "models/gemini-2.0-flash", api_key=self.api_key)
         self.collection = connect_to_mongo(db_name, collection_name)

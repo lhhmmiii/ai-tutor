@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from llama_index.llms.gemini import Gemini
-from typing import List
+from typing import List, Optional
 from bson import ObjectId
 from fastapi import HTTPException
 from llama_index.core.program import LLMTextCompletionProgram
@@ -97,7 +97,8 @@ class GrammarCheckService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error retrieving grammar entries: {str(e)}")
 
-    def update_grammar(self, grammar_id: str, corrected_text: str = None, issues_found: List[GrammarIssue] = None) -> bool:
+    def update_grammar(self, grammar_id: str, corrected_text: Optional[str] = None,\
+                       issues_found: Optional[List[GrammarIssue]] = None) -> bool:
         """
         Update a grammar correction entry by its ID.
 

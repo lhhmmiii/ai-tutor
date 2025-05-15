@@ -1,7 +1,7 @@
 from writing.database import connect_to_mongo
 from writing.schemas.user_schema import UserSchema, DeleteUserResponse, UpdateUserResponse
 from writing.helpers.security_helper import hash_password, password_validation
-from typing import List
+from typing import List, Dict, Any, Optional, Union
 from bson import ObjectId
 from fastapi import HTTPException
 import copy
@@ -14,7 +14,7 @@ class User:
     as well as manage user documents within the database.
     """
 
-    def __init__(self, db_name, collection_name):
+    def __init__(self, db_name: str, collection_name: str) -> None:
         """
         Initialize the User class with a connection to the specified MongoDB collection.
 
@@ -23,7 +23,7 @@ class User:
         """
         self.collection = connect_to_mongo(db_name, collection_name)
 
-    def create_user(self, query: dict) -> UserSchema:
+    def create_user(self, query: Dict[str, Any]) -> UserSchema:
         """
         Create a new user in the database.
 
@@ -68,7 +68,7 @@ class User:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-    def get_user_by_email(self, email: str):
+    def get_user_by_email(self, email: str) -> Optional[UserSchema]:
         """
         Retrieve a user by their email address.
 
@@ -88,7 +88,7 @@ class User:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-    def get_user_by_username(self, username: str):
+    def get_user_by_username(self, username: str) -> Optional[UserSchema]:
         """
         Retrieve a user by their username.
 
@@ -117,7 +117,7 @@ class User:
         """
         try:
             users_data = self.collection.find({})
-            users = []
+            users: List[UserSchema] = []
             for user_data in users_data:
                 user = UserSchema(user_id=str(user_data['_id']), username=user_data['username'],
                                   password=user_data['password'], email=user_data['email'],
@@ -128,7 +128,7 @@ class User:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-    def update_document_list(self, user_id: str, file_name: str, index_id, ref_doc_ids):
+    def update_document_list(self, user_id: str, file_name: str, index_id: Any, ref_doc_ids: List[str]) -> Dict[str, Any]:
         """
         Update the document list for a user.
 
@@ -164,7 +164,7 @@ class User:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-    def update_user(self, user_id: str, user: UserSchema) -> UpdateUserResponse:
+    def update_user(self, user_id: str, user: UserSchema) -> Union[str, None]:
         try:
             user.password = hash_password(user.password)
             self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": user.dict()})
@@ -180,7 +180,7 @@ class User:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
     
-    def delete_document_list(self, index_id, ref_doc_ids):
+    def delete_document_list(self, index_id: Any, ref_doc_ids: Optional[List[str]]) -> Optional[Dict[str, str]]:
         users = self.get_users()
         for user in users:
             documents = user.documents

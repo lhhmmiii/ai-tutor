@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional
 
 
 class TextExtractor(ABC):
     @abstractmethod
-    async def extract_text(self, file, url: str = None):
+    async def extract_text(self, file, url: Optional[str] = None):
         """
         Extract text from the given source.
         :param file: Uploaded file
@@ -15,7 +15,7 @@ class TextExtractor(ABC):
         pass
 
     @abstractmethod
-    def supports_file_type(self, file_name: str, url: str = None):
+    def supports_file_type(self, file_name: str, url: Optional[str] = None):
         """
         Check if the extractor supports a specific file type.
         :param file_extension: The file extension or MIME type.
@@ -26,11 +26,11 @@ class TextExtractor(ABC):
     @abstractmethod
     def create_docs(
         self,
-        texts: list[Any] = None,
-        file_name: str = None,
-        url: str = None,
-        sheet_names: str = None,
-        user_id: str = None,
+        texts: Optional[list[Any]] = None,
+        file_name: Optional[str] = None,
+        url: Optional[str] = None,
+        sheet_names: Optional[str] = None,
+        user_id: Optional[str] = None,
     ):
         """
         Create nodes from text
@@ -44,7 +44,7 @@ class TextExtractor(ABC):
 
 class BaseQA(ABC):
     @abstractmethod
-    def query(self, query_str, user_id: None):
+    def query(self, query_str, user_id: Optional[str] = None):
         """
         Answer the questions from user
         query_str: query from user

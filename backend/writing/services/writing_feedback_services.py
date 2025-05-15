@@ -6,16 +6,16 @@ from writing.schemas.writing_feedback_schema import WritingFeedback
 from llama_index.core.program import LLMTextCompletionProgram
 from llama_index.core.output_parsers import PydanticOutputParser
 from fastapi import HTTPException
-
+from typing import Optional
 # load environment variables from .env file
 load_dotenv()
 
 class WritingFeedbackService:
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         self.gemini = Gemini(model = "models/gemini-2.0-flash", api_key=self.api_key)
 
-    def feedback(self, text: str) -> str:
+    def feedback(self, text: str) -> WritingFeedback:
         """
         Provide feedback on the given text using the Gemini model.
         params:

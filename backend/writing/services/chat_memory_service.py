@@ -1,7 +1,7 @@
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.storage.chat_store.redis import RedisChatStore
 from fastapi import HTTPException
-
+from typing import Optional
 
 class ChatMemory:
     """
@@ -9,7 +9,7 @@ class ChatMemory:
     """
 
     def __init__(self, redis_url: str = "redis://localhost:6379", user_id: str = '',
-                 ttl: int = None):
+                 ttl: Optional[int] = None):
         """
         Initialize the ChatMemory instance.
 
