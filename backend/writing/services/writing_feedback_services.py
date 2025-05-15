@@ -1,7 +1,7 @@
 from llama_index.llms.gemini import Gemini
 import os
 from dotenv import load_dotenv
-from writing.config.prompts import feedback_prompt
+from writing.config.prompts import writing_feedback_prompt
 from writing.schemas.writing_feedback_schema import WritingFeedback
 from llama_index.core.program import LLMTextCompletionProgram
 from llama_index.core.output_parsers import PydanticOutputParser
@@ -26,7 +26,7 @@ class WritingFeedbackService:
         try:
             program = LLMTextCompletionProgram.from_defaults(
                 output_parser = PydanticOutputParser(output_cls=WritingFeedback),
-                prompt_template_str = feedback_prompt,
+                prompt_template_str = writing_feedback_prompt,
                 verbose=True,
                 llm = self.gemini,
             )
