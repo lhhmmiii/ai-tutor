@@ -5,7 +5,6 @@ uvicorn
 docker
 ruff
 dotenv
-bson
 pydantic[email]
 selenium
 beautifulsoup4
@@ -19,6 +18,7 @@ llama-index-storage-docstore-mongodb
 llama-index-storage-index-store-mongodb
 llama-index-vector-stores-qdrant
 llama-index-embeddings-cohere
+llama-index-graph-stores-neo4j
 spire-doc
 python-pptx
 Spire.Presentation
