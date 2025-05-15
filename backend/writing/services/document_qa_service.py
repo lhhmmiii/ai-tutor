@@ -16,6 +16,7 @@ from llama_index.core import StorageContext
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.core.tools.query_engine import QueryEngineTool
+from llama_index.core import KnowledgeGraphIndex
 from llama_index.core.utils import iter_batch
 from llama_index.core.vector_stores import (
     ExactMatchFilter,
@@ -23,6 +24,7 @@ from llama_index.core.vector_stores import (
     MetadataFilters,
 )
 
+from writing.config import gemini
 from writing.services.base_service import BaseQA
 from writing.services.chat_memory_service import ChatMemory
 from writing.services.extract_html_file_service import HtmlFile
@@ -32,6 +34,7 @@ from writing.services.user_service import User
 from writing.helpers.embedding_nodes_helper import get_node_with_embedding
 from writing.helpers.post_process_nodes_helper import create_node_postprocessor
 from writing.utils.file_utils import load_file
+
 
 
 class DocumentQA(BaseQA):
@@ -132,6 +135,13 @@ class DocumentQA(BaseQA):
                 nodes, storage_context=self.storage_context, show_progress=True
             )  # Generating embeding from docstore
             self.storage_context.vector_store.stores_text = True
+            # index = KnowledgeGraphIndex.from_documents(
+            #     docs,
+            #     storage_context=self.storage_context,
+            #     max_triplets_per_chunk=2,
+            #     show_progress=True,
+            # )
+            # print(111111111111111111111111111)
             ref_doc_ids = self.get_ref_doc_ids_from_node_ids(index.index_id, index)
             # Update User DB
             self.user.update_document_list(

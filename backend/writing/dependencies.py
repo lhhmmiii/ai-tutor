@@ -5,12 +5,15 @@ import qdrant_client
 from dotenv import load_dotenv
 
 from llama_index.core import StorageContext
-from llama_index.graph_stores.neo4j import Neo4jPropertyGraphStore
+from llama_index.graph_stores.neo4j import Neo4jGraphStore
 from llama_index.storage.docstore.mongodb import MongoDocumentStore
 from llama_index.storage.index_store.mongodb import MongoIndexStore
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from writing.services.document_qa_service import DocumentQA
 from writing.services.user_service import User
+
+
+
 
 # load variables from .env file
 load_dotenv()
@@ -50,21 +53,23 @@ def initialize_storage_context(db_name, collection_name):
     )
     vector_store = QdrantVectorStore(client=client, collection_name=collection_name)
     
+    # # Graph Store
+    # graph_store = Neo4jGraphStore(
+    #     username="neo4j",
+    #     password= os.getenv("NEO4J_PASSWORD"),
+    #     url=os.getenv("NEO4J_URI"),
+    #     database="neo4j"
+    # )
+
     # Create and return storage context with all components
     storage_context = StorageContext.from_defaults(
         docstore=docstore,
         index_store=index_store,
-        vector_store=vector_store
+        vector_store=vector_store,
+        # graph_store=graph_store
     )
     return storage_context
 
-def initialize_graph_store():
-    graph_store = Neo4jPropertyGraphStore(
-        username="neo4j",
-        password= os.getenv("NEO4J_PASSWORD"),
-        url=os.getenv("NEO4J_URI"),
-    )
-    return graph_store  
 
 
 def get_llm(request: Request):

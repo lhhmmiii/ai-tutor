@@ -61,51 +61,6 @@ def get_lesson_links(driver, name, max_attempts=50):
     return links
 
 
-def extract_with_hierarchy(elements, level=0):
-    """
-    Recursively extracts text content from HTML elements while maintaining hierarchy.
-
-    Args:
-        elements (list): A list of Selenium WebElements to process.
-        level (int, optional): The current indentation level. Defaults to 0.
-
-    Returns:
-        str: A formatted string representation of the extracted content, preserving hierarchy.
-
-    The function processes various HTML tags differently:
-    - Headers (h1-h6): Prefixed with '#' based on their level.
-    - Paragraphs (p): Included as plain text.
-    - Lists (ul, ol): Each item is prefixed with a dash.
-    - Other elements: Processed recursively if they have children, otherwise included as plain text.
-
-    Indentation is used to represent the hierarchy of nested elements.
-    """
-    indent = '  ' * level
-    result = ''
-    for el in elements:
-        tag = el.tag_name.lower()
-        text = el.text.strip()
-
-        if not text:
-            continue
-
-        if tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-            header_level = int(tag[1])
-            result += f"{indent}{'#' * header_level} {text}\n"
-        elif tag == 'p':
-            result += f"{indent}{text}\n"
-        elif tag in ['ul', 'ol']:
-            items = el.find_elements(By.XPATH, './li')
-            for li in items:
-                result += f"{indent}- {li.text.strip()}\n"
-        else:
-            children = el.find_elements(By.XPATH, './*')
-            if children:
-                result += extract_with_hierarchy(children, level + 1)
-            else:
-                result += f"{indent}{text}\n"
-    return result
-
 def parse_lesson(driver, url):
     """
     Parse a single grammar lesson page to extract content.
@@ -124,17 +79,33 @@ def parse_lesson(driver, url):
         # Get the lesson title
         title = driver.find_element(By.CLASS_NAME, 'page-header').text
         
-        # Get the main content
-        content = driver.find_element(By.CLASS_NAME, 'content')
-        elements = content.find_elements(By.XPATH, './*')
-        text = extract_with_hierarchy(elements)
-        return {'title': title, 'content': text}
-        
+        # Get the example
+        p1_xpath = '//*[@id="block-block-group-main-content"]/article/div/div[3]/p[1]'
+        b1_xpath = '//*[@id="block-block-group-main-content"]/article/div/div[3]/blockquote[1]'
+
+        p1_text = driver.find_element(By.XPATH, p1_xpath).text.strip()
+        b1_text = driver.find_element(By.XPATH, b1_xpath).text.strip()
+        example_str = p1_text + "\n\n" + b1_text
+        # Get the grammar explanation
+        grammar_elements = driver.find_element(By.XPATH, '//*[@id="block-block-group-main-content"]/article/div/div[3]/h2')
+        siblings = grammar_elements.find_elements(By.XPATH, 'following-sibling::*')
+        grammar_explanation_text = []
+        allowed_tags = {"p", "h3", "blockquote"}
+        text_content = []
+        for elem in siblings:
+            tag = elem.tag_name
+            if tag == "h2":  # Stop when encountering a new major heading
+                break
+            if tag in allowed_tags:
+                text_content.append(elem.text.strip())
+        grammar_explanation_text = '\n'.join(text_content)
+        return {'title': title, 'content': example_str + '\n\n' + grammar_explanation_text}
+
     except Exception as e:
         print(f"Error parsing lesson at {url}: {str(e)}")
         return None
 
-def crawl_all(save_dir : str = 'writing/data'):
+def crawl_all(save_dir : str = 'writing/data/grammar/raw'):
     """
     Crawl all grammar lessons from all sections.
     
@@ -159,8 +130,6 @@ def crawl_all(save_dir : str = 'writing/data'):
                 if lesson_data:
                     title = lesson_data['title']
                     content = lesson_data['content']
-                    print(1111111111111)
-                    print(content,22222222)
                     
                     # Create a valid filename from the title
                     filename = "".join(x for x in title if x.isalnum() or x in [' ', '-', '_']).rstrip()

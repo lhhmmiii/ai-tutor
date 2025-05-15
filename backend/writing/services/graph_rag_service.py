@@ -17,7 +17,7 @@ nest_asyncio.apply()
 embed_model = embed_model()
 setting(llm=gemini, embed_model=embed_model)
 
-grammar_data_path = "writing/data/Adjectives_and_prepositions.txt"
+grammar_data_path = "writing/data"
 
 
 
@@ -32,9 +32,10 @@ def create_docs(texts: str = '', file_name: str = ''):
     return doc
 
 documents = []
-with open(grammar_data_path, "r", encoding="utf-8") as f:
-    text = f.read()
-doc = create_docs(text, "test")
+for file in os.listdir(grammar_data_path):
+    with open(os.path.join(grammar_data_path, file), "r", encoding="utf-8") as f:
+        text = f.read()
+    doc = create_docs(text, file)
 documents.append(doc)
 
 # Note: used to be `Neo4jPGStore`
