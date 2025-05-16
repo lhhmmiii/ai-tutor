@@ -18,11 +18,11 @@ async def add_word(user_id: str, text: str) -> VocabularyEntry:
     return result
 
 @vocabulary_support_router.get("/vocabulary", dependencies = [Depends(validate_token)])
-async def get_word(user_id, word) -> VocabularyEntry:
+async def get_word(word_id: str) -> VocabularyEntry:
     """
-    Get a vocabulary entry by user_id and word.
+    Get a vocabulary entry by user_id and word_id.
     """
-    result = vocabulary_support_service.get_word(user_id, word)
+    result = vocabulary_support_service.get_word(word_id)
     return result
 
 @vocabulary_support_router.get("/vocabularies", dependencies = [Depends(validate_token)])
@@ -34,19 +34,19 @@ async def get_words(user_id: str) -> List[VocabularyEntry]:
     return result
 
 @vocabulary_support_router.put("/vocabulary", dependencies = [Depends(validate_token)])
-async def update_word(user_id: str, word: str, updates: VocabularyUpdateRequest = None):
+async def update_word(word_id: str, updates: VocabularyUpdateRequest = None) -> str:
     """
     Update fields of a vocabulary entry for a user.
     """
-    message = vocabulary_support_service.update_word(user_id, word, updates)
+    message = vocabulary_support_service.update_word(word_id, updates)
     return message
 
 @vocabulary_support_router.delete("/vocabulary", dependencies = [Depends(validate_token)])
-async def delete_word(user_id: str, word: str):
+async def delete_word(word_id: str) -> str:
     """
-    Delete a vocabulary entry by user_id and word.
+    Delete a vocabulary entry by user_id and word_id.
     """
-    if vocabulary_support_service.delete_word(user_id, word):
-        return f"Delete {word} successfully"
+    if vocabulary_support_service.delete_word(word_id):
+        return "Delete successfully"
 
 

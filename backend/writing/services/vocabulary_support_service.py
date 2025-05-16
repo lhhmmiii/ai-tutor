@@ -8,6 +8,8 @@ from llama_index.core.output_parsers import PydanticOutputParser
 from writing.database import connect_to_mongo
 from fastapi import HTTPException
 from typing import Optional
+from bson import ObjectId
+
 # load environment variables from .env file
 load_dotenv()
 
@@ -34,11 +36,6 @@ class VocabularySupportService:
             )
             result = program(text=text)
 
-            existing = self.collection.find_one({"user_id": user_id, "word": result.word})
-            if existing:
-                existing.pop("_id", None)
-                return VocabularyEntry(**existing)
-
             query = {
                 "user_id": user_id,
                 "word": result.word,
@@ -48,28 +45,30 @@ class VocabularySupportService:
                 "image_idea": result.image_idea,
                 "additional_examples": result.additional_examples
             }
+            print(1111111111111111111)
+            print(query)
             self.collection.insert_one(query)
             return result
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error adding word: {str(e)}")
 
     
-    def get_word(self, user_id: str, word: str) -> VocabularyEntry | None:
+    def get_word(self, word_id: str) -> VocabularyEntry | None:
         """
-        Retrieve a specific vocabulary entry for a user by the given word.
+        Retrieve a specific vocabulary entry for a user by the given word_id.
         
         Params:
             user_id (str): The ID of the user.
-            word (str): The vocabulary word to find.
+            word_id (str): The word_id of the vocabulary word to find.
         
         Returns:
             VocabularyEntry | None: Returns a VocabularyEntry instance if found, otherwise None.
         """
         try:
-            data = self.collection.find_one({"user_id": user_id, "word": word})
+            data = self.collection.find_one({"_id": ObjectId(word_id)})
             if not data:
                 raise HTTPException(status_code=404, detail="Word not found")
-            data.pop("_id", None)
+            data.pop("_id")
             return VocabularyEntry(**data)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error retrieving word: {str(e)}")
@@ -89,20 +88,20 @@ class VocabularySupportService:
             cursor = self.collection.find({"user_id": user_id})
             results = []
             for data in cursor:
-                data.pop("_id", None)
+                data.pop("_id")
                 results.append(VocabularyEntry(**data))
             return results
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error retrieving words: {str(e)}")
 
 
-    def update_word(self, user_id: str, word: str, updated_fields: dict) -> bool:
+    def update_word(self, word_id: str, updated_fields: dict) -> str:
         """
         Update fields of a vocabulary entry for a user.
         
         Params:
             user_id (str): The ID of the user.
-            word (str): The vocabulary word to update.
+            word_id (str): The MongoID of the vocabulary word to update.
             updated_fields (dict): A dictionary of fields to update with their new values.
         
         Returns:
@@ -110,29 +109,30 @@ class VocabularySupportService:
         """
         try:
             result = self.collection.update_one(
-                {"user_id": user_id, "word": word},
-                {"$set": updated_fields}
+                {"_id": ObjectId(word_id)},
+                {"$set": updated_fields.dict()}
             )
             if result.modified_count == 0:
                 raise HTTPException(status_code=404, detail="Word not found or no changes made")
-            return True
+            return "Update successfully"
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error updating word: {str(e)}")
 
 
-    def delete_word(self, user_id: str, word: str) -> bool:
+    def delete_word(self, word_id: str) -> bool:
         """
-        Delete a vocabulary entry for a user by word.
+        Delete a vocabulary entry for a user by word_id.
         
         Params:
             user_id (str): The ID of the user.
-            word (str): The vocabulary word to delete.
+            word_id (str): The MongoID of the vocabulary word to delete.
         
         Returns:
             bool: True if the deletion was successful (found and deleted), False otherwise.
         """
         try:
-            result = self.collection.delete_one({"user_id": user_id, "word": word})
+            from bson import ObjectId
+            result = self.collection.delete_one({"_id": ObjectId(word_id)})
             if result.deleted_count == 0:
                 raise HTTPException(status_code=404, detail="Word not found")
             return True

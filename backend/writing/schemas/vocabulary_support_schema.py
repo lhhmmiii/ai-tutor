@@ -28,6 +28,7 @@ class VocabularyEntry(BaseModel):
         }
 
 class VocabularyUpdateRequest(BaseModel):
+    word: str
     meaning_vn: str | None = None
     sample_sentence: str | None = None
     synonyms: List[str] | None = None
@@ -37,6 +38,7 @@ class VocabularyUpdateRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
+                "word": "interested in",
                 "meaning_vn": "quan tâm tới",
                 "sample_sentence": "I'm interested in improving my cooking skills.",
                 "synonyms": ["fascinated by", "curious about"],
