@@ -67,7 +67,7 @@ export default function Chatbot() {
       {isOpen && (
         <div className="fixed bottom-20 right-6 z-50 flex flex-col w-80 max-h-[500px] bg-indigo-700 rounded-lg shadow-lg overflow-hidden">
           <header className="flex items-center justify-between p-4 bg-indigo-900">
-            <h3 className="text-white font-bold text-lg">Vocabulary Chatbot</h3>
+            <h3 className="text-white font-bold text-lg">LHH</h3>
             <button
               aria-label="Close chatbot"
               onClick={() => setIsOpen(false)}
