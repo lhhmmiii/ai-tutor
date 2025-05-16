@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Lấy access token từ localStorage
 function getAuthHeader() {
@@ -12,9 +12,9 @@ function getAuthHeader() {
   };
 }
 
-export async function GrammarCheck(text) {
+export async function grammar_check(user_id, text) {
   try {
-    const { data } = await axios.post(`${API_BASE_URL}/grammar-check`, { text }, getAuthHeader());
+    const { data } = await  axios.post(`${API_BASE_URL}/grammar?user_id=${user_id}&text=${encodeURIComponent(text)}`, {}, getAuthHeader());
     console.log('Check grammar completely');
     return data;
   } catch (error) {
