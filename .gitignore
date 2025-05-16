@@ -1,20 +1,64 @@
-# Ignore Python cache
+# === Python cache files ===
 __pycache__/
 *.py[cod]
+*.so
+*.pyd
 
-# Ignore ruff cache
-backend\.ruff_cache
+# === Ruff cache ===
+backend/.ruff_cache/
 
-# Ignore virtual environments
+# === Virtual environments ===
 myenv/
+venv/
+.env/
 
-# Ignore environment variables file
+# === Environment variables ===
+*.env
 backend/.env
+frontend/my-app/.env.*
+!.env.example
 
-# Ignore data folder
+# === Data folders ===
+data/
 backend/writing/data/
 !backend/writing/mlops/data/
 !backend/writing/mlops/data/**
 
-# Ignore Neo4j folder
-data/
+# === Logs and temp files ===
+*.log
+*.tmp
+*.bak
+
+# === VSCode settings ===
+.vscode/
+
+# === OS-specific files ===
+.DS_Store
+Thumbs.db
+
+# === Node.js ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === Build output ===
+dist/
+build/
+frontend/my-app/build/
+frontend/my-app/.next/
+
+# === Coverage reports ===
+coverage/
+*.cover
+*.coverage
+*.lcov
+
+# === PyInstaller ===
+*.spec
+
+# === Jupyter Notebook checkpoints ===
+.ipynb_checkpoints/
+
+# === Others ===
+.idea/
