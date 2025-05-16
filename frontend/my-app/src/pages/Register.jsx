@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
+import { register } from '../services/auth_service';
+import { useNavigate } from 'react-router-dom';
 
 export default function Register() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     username: '',
     email: '',
+    fullName: '',
     password: '',
     confirmPassword: '',
   });
@@ -12,9 +16,9 @@ export default function Register() {
     setForm({...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    if (!form.username || !form.email || form.password.length < 6) {
+    if (!form.username || !form.email || !form.fullName || form.password.length < 6) {
       alert('Please fill out all fields and ensure password is at least 6 characters');
       return;
     }
@@ -22,8 +26,15 @@ export default function Register() {
       alert('Passwords do not match');
       return;
     }
-    alert(`Registration successful!\nUsername: ${form.username}\nEmail: ${form.email}`);
-    setForm({ username: '', email: '', password: '', confirmPassword: '' });
+    try {
+      const data = await register(form);
+      console.log(data)
+      alert(`Registration successful!\nUsername: ${form.username}\nEmail: ${form.email}`);
+      setForm({ username: '', email: '', fullName: '', password: '', confirmPassword: '' });
+      navigate('/');
+    } catch (error) {
+      alert(error.message || 'Registration failed');
+    }
   };
 
   return (
@@ -65,6 +76,24 @@ export default function Register() {
             name="email" 
             placeholder="Email" 
             value={form.email} 
+            onChange={handleChange}
+            className="w-full pl-10 p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        {/* Full Name input with icon */}
+        <div className="relative mb-6">
+          <span className="absolute inset-y-0 left-3 flex items-center text-blue-500">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A8.966 8.966 0 0112 15a8.966 8.966 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </span>
+          <input 
+            type="text" 
+            name="fullName" 
+            placeholder="Full Name" 
+            value={form.fullName} 
             onChange={handleChange}
             className="w-full pl-10 p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
