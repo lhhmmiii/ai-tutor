@@ -28,7 +28,6 @@ export default function Register() {
     }
     try {
       const data = await register(form);
-      console.log(data)
       alert(`Registration successful!\nUsername: ${form.username}\nEmail: ${form.email}`);
       setForm({ username: '', email: '', fullName: '', password: '', confirmPassword: '' });
       navigate('/');
