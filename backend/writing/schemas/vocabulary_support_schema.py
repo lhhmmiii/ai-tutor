@@ -27,6 +27,18 @@ class VocabularyEntry(BaseModel):
                 }
         }
 
+class VocabularyResponse(BaseModel):
+    word_id: str
+    vocabulary: VocabularyEntry
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "word_id": "123",
+                "vocabulary": VocabularyEntry.Config.json_schema_extra["example"]
+            }
+        }
+
 class VocabularyUpdateRequest(BaseModel):
     word: str
     meaning_vn: str | None = None

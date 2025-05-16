@@ -2,7 +2,7 @@ from llama_index.llms.gemini import Gemini
 import os
 from dotenv import load_dotenv
 from writing.config.prompts import generate_vocabulary_prompt
-from writing.schemas.vocabulary_support_schema import VocabularyEntry
+from writing.schemas.vocabulary_support_schema import VocabularyEntry, VocabularyResponse
 from llama_index.core.program import LLMTextCompletionProgram
 from llama_index.core.output_parsers import PydanticOutputParser
 from writing.database import connect_to_mongo
@@ -19,13 +19,13 @@ class VocabularySupportService:
         self.gemini = Gemini(model = "models/gemini-2.0-flash", api_key=self.api_key)
         self.collection = connect_to_mongo(db_name, collection_name)
 
-    def add_word(self, user_id: str, text: str) -> VocabularyEntry:
+    def add_word(self, user_id: str, text: str) -> VocabularyResponse:
         """
         Support user to learn vocabulary more better.
         params:
             text (str): Word, phrase and sentence (if any)
         returns:
-            VocabularyEntry: The vocabulary entry with meaning, examples, synonyms, and image prompt
+            VocabularyResponse: The vocabulary entry with meaning, examples, synonyms, and image prompt
         """
         try:
             program = LLMTextCompletionProgram.from_defaults(
@@ -45,10 +45,8 @@ class VocabularySupportService:
                 "image_idea": result.image_idea,
                 "additional_examples": result.additional_examples
             }
-            print(1111111111111111111)
-            print(query)
             self.collection.insert_one(query)
-            return result
+            return VocabularyResponse(word_id=str(query["_id"]), vocabulary=result)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error adding word: {str(e)}")
 
@@ -74,7 +72,7 @@ class VocabularySupportService:
             raise HTTPException(status_code=500, detail=f"Error retrieving word: {str(e)}")
 
 
-    def get_words(self, user_id: str) -> list[VocabularyEntry]:
+    def get_words(self, user_id: str) -> tuple[list[str], list[VocabularyEntry]]:
         """
         Retrieve all vocabulary entries for a specific user.
         
@@ -87,10 +85,12 @@ class VocabularySupportService:
         try:
             cursor = self.collection.find({"user_id": user_id})
             results = []
+            word_ids = []
             for data in cursor:
-                data.pop("_id")
+                word_id = str(data.pop("_id"))
+                word_ids.append(word_id)
                 results.append(VocabularyEntry(**data))
-            return results
+            return word_ids, results
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error retrieving words: {str(e)}")
 
