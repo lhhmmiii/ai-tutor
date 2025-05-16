@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export async function login({ username, password }) {
     const res = await fetch(`${API_BASE_URL}/login`, {
@@ -12,12 +12,13 @@ export async function login({ username, password }) {
     return data;
   }
   
-  export async function register({ username, email, password }) {
+  export async function register({ username, email, fullName, password }) {
     const res = await fetch(`${API_BASE_URL}/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify({ username : username, email : email, full_name : fullName, password : password }),
     });
+    
   
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Registration failed');

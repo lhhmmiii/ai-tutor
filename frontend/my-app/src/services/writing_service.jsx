@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Lấy access token từ localStorage
 function getAuthHeader() {
@@ -14,7 +14,7 @@ function getAuthHeader() {
 
 export async function GrammarCheck(text) {
   try {
-    const { data } = await axios.post(`${API_URL}/grammar-check`, { text }, getAuthHeader());
+    const { data } = await axios.post(`${API_BASE_URL}/grammar-check`, { text }, getAuthHeader());
     console.log('Check grammar completely');
     return data;
   } catch (error) {
@@ -24,7 +24,7 @@ export async function GrammarCheck(text) {
 
 export async function AnalyzeLevel(text) {
   try {
-    const { data } = await axios.post(`${API_URL}/level-analysis`, { text }, getAuthHeader());
+    const { data } = await axios.post(`${API_BASE_URL}/level-analysis`, { text }, getAuthHeader());
     console.log('Analyze level completely');
     return data;
   } catch (error) {
@@ -34,7 +34,7 @@ export async function AnalyzeLevel(text) {
 
 export async function WritingFeedback(text) {
   try {
-    const { data } = await axios.post(`${API_URL}/writing-feedback`, { text }, getAuthHeader());
+    const { data } = await axios.post(`${API_BASE_URL}/writing-feedback`, { text }, getAuthHeader());
     console.log('Feedback completely');
     return data;
   } catch (error) {
@@ -44,7 +44,7 @@ export async function WritingFeedback(text) {
 
 export async function VocabularySupport(text) {
   try {
-    const { data } = await axios.get(`${API_URL}/vocabulary?text=${encodeURIComponent(text)}`, getAuthHeader());
+    const { data } = await axios.get(`${API_BASE_URL}/vocabulary?text=${encodeURIComponent(text)}`, getAuthHeader());
     console.log('Support Vocabulary completely');
     return data;
   } catch (error) {
@@ -59,7 +59,7 @@ export async function WritingAgent(userId, question) {
       question: question,
     };
 
-    const { data } = await axios.post(`${API_URL}/writing_agent`, requestBody, getAuthHeader());
+    const { data } = await axios.post(`${API_BASE_URL}/writing_agent`, requestBody, getAuthHeader());
     console.log('Chatbot response received');
     return data;
   } catch (error) {
