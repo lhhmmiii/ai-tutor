@@ -23,7 +23,7 @@ export default function Vocabulary() {
           word_id: word.word_id,
           word: word.vocabulary.word,
           vietnamese: word.vocabulary.meaning_vn,
-          example: word.vocabulary.sample_sentence,
+          example: word.vocabulary.sample_sentences.join('\n'), // Assuming sample_sentence is an array
           synonym: word.vocabulary.synonyms.join(', '),
           imageUrl: '',
         }))
@@ -64,7 +64,7 @@ export default function Vocabulary() {
           word_id: answer.word_id,
           word: wordToAdd.trim(),
           vietnamese: answer.vocabulary.meaning_vn,
-          example: answer.vocabulary.sample_sentence,
+          example: answer.vocabulary.sample_sentences.join('\n'), // Assuming sample_sentence is an array
           synonym: answer.vocabulary.synonyms.join(', '),
           imageUrl: '',
         },
