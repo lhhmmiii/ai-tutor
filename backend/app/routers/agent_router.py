@@ -19,4 +19,4 @@ async def writing_agent(request: WritingAgentRequest) -> str:
     """
     agent = WritingAgentHandler()
     response = await agent.run(user_id = request.user_id, user_input = request.question)
-    return response.response.blocks[0].text
+    return response
