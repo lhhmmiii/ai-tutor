@@ -1,6 +1,6 @@
 from llama_index.core.llms import ChatMessage
 from app.config.prompts import english_vietnamese_dictionary_prompt, grammar_explanation_prompt, sentence_parsing_prompt,\
-                                   example_generator_prompt, conversation_simulator_prompt, error_correction_prompt,\
+                                   example_generator_prompt, error_correction_prompt,\
                                    feedback_prompt, faq_knowledge_base_prompt, quick_tip_prompt, fall_to_gemini_prompt
 
 from typing import List, Callable, Optional, Any
@@ -23,7 +23,6 @@ class WritingTools:
             self.grammar_explanation_tool,
             self.sentence_parsing_tool,
             self.example_generator,
-            self.conversation_simulator,
             self.error_correction_tool,
             self.feedback_tool,
             self.faq_knowledge_base_tool,
@@ -71,13 +70,6 @@ class WritingTools:
         - category: "word" or "grammar" to guide generation.
         """
         return self._run_tool(example_generator_prompt, f"{category}:{term}")
-
-    def conversation_simulator(self, topic: str) -> str:
-        """
-        Simulate a conversation on a given topic to help learners
-        practice writing or speaking interactively.
-        """
-        return self._run_tool(conversation_simulator_prompt, topic)
 
     def error_correction_tool(self, user_input: str, input_type: str = "text") -> str:
         """
