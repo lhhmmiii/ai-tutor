@@ -71,11 +71,10 @@ Your goal is to help users learn correct English vocabulary based on the word or
 
   + If no sentence is provided, translate the most common/general meaning.
 
-- A sample sentence using the word or phrase.
+- A sample sentences using the word or phrase.
 
 - A list of 1-2 common synonyms (if available).
 
-- A descriptive image idea to help the user remember the word.
 
 3. Return the result as structured JSON, ready to be saved into a learning system.
 
@@ -97,15 +96,8 @@ Output JSON:
 {
   "word": "advice",
   "meaning_vn": "lời khuyên",
-  "sample_sentence": "He gave me some useful advice before the meeting.",
+  "sample_sentences": ["He gave me some useful advice before the meeting.", "I always ask my parents for advice.", "She offered me great advice about studying abroad."],
   "synonyms": ["recommendation", "guidance"],
-  "image_idea": "Two people talking seriously, one giving advice.",
-  "additional_examples": [
-    "I always ask my parents for advice.",
-    "She offered me great advice about studying abroad.",
-    "The teacher's advice helped me pass the exam.",
-    "Good advice can change your life."
-  ]
 }
 </Example>
 
@@ -118,15 +110,8 @@ Output JSON:
 {
   "word": "dessert",
   "meaning_vn": "món tráng miệng",
-  "sample_sentence": "I love eating chocolate cake for dessert.",
+  "sample_sentences": ["I love eating chocolate cake for dessert.", "We had fruit for dessert.", "Ice cream is my favorite dessert.", "They served a delicious dessert after dinner.", "She always makes homemade desserts for family gatherings."],
   "synonyms": ["sweet", "pudding"],
-  "image_idea": "A table full of colorful desserts like cake and ice cream.",
-  "additional_examples": [
-    "We had fruit for dessert.",
-    "Ice cream is my favorite dessert.",
-    "They served a delicious dessert after dinner.",
-    "She always makes homemade desserts for family gatherings."
-  ]
 }
 </Example>
 
@@ -139,15 +124,9 @@ Output JSON:
 {
   "word": "good at",
   "meaning_vn": "giỏi về",
-  "sample_sentence": "She is good at painting landscapes.",
+  "sample_sentences": ["She is good at painting landscapes.", "He is good at solving problems.", "They are good at organizing events.", "I'm not very good at playing chess.", "You are really good at singing."],
   "synonyms": ["skilled in", "proficient at"],
-  "image_idea": "An artist happily painting a colorful landscape.",
-  "additional_examples": [
-    "He is good at solving problems.",
-    "They are good at organizing events.",
-    "I'm not very good at playing chess.",
-    "You are really good at singing."
-  ]
+  }
 }
 </Example>
 
@@ -160,15 +139,9 @@ Output JSON:
 {
   "word": "married to",
   "meaning_vn": "kết hôn với",
-  "sample_sentence": "She is married to an engineer.",
+  "sample_sentences": ["She is married to an engineer.", "He is happily married to his college sweetheart.", "She got married to a famous musician.", "Being married to a celebrity has its challenges.", "They have been married to each other for over 20 years."],
   "synonyms": [],
-  "image_idea": "A wedding ceremony where the couple exchanges rings.",
-  "additional_examples": [
-    "He is happily married to his college sweetheart.",
-    "She got married to a famous musician.",
-    "Being married to a celebrity has its challenges.",
-    "They have been married to each other for over 20 years."
-  ]
+}
 }
 </Example>
 
@@ -182,15 +155,9 @@ Output JSON:
 {
   "word": "charge",
   "meaning_vn": "sạc (thiết bị điện)",
-  "sample_sentence": "Don't forget to charge your laptop before the trip.",
+  "sample_sentences": ["Don't forget to charge your laptop before the trip.", "I need to charge my phone overnight.", "The battery takes two hours to charge fully.", "She forgot to charge her headphones before the flight.", "Always charge your devices regularly."],
   "synonyms": ["power up", "recharge"],
-  "image_idea": "A phone being connected to a charger, battery filling up.",
-  "additional_examples": [
-    "I need to charge my phone overnight.",
-    "The battery takes two hours to charge fully.",
-    "She forgot to charge her headphones before the flight.",
-    "Always charge your devices regularly."
-  ]
+}
 }
 </Example>
 
@@ -203,15 +170,9 @@ Output JSON:
 {
   "word": "address",
   "meaning_vn": "địa chỉ",
-  "sample_sentence": "Make sure your address is up-to-date.",
+  "sample_sentences": ["Make sure your address is up-to-date.", "They moved to a new address last month.", "What is your current address?", "Please confirm your shipping address.", "She wrote her address neatly on the package."],
   "synonyms": ["location", "residence"],
-  "image_idea": "An envelope with a clear address written on it.",
-  "additional_examples": [
-    "They moved to a new address last month.",
-    "What is your current address?",
-    "Please confirm your shipping address.",
-    "She wrote her address neatly on the package."
-  ]
+}
 }
 </Example>
 
@@ -223,15 +184,8 @@ Output JSON:
 {
   "word": "interested in",
   "meaning_vn": "quan tâm tới",
-  "sample_sentence": "I'm interested in improving my cooking skills.",
+  "sample_sentences": ["I'm interested in improving my cooking skills.", "He's interested in working abroad.", "They're interested in environmental issues.", "Are you interested in joining our club?", "I'm very interested in classical music."],
   "synonyms": ["fascinated by", "curious about"],
-  "image_idea": "A person attentively reading a book about Korean culture.",
-  "additional_examples": [
-    "He's interested in working abroad.",
-    "They're interested in environmental issues.",
-    "Are you interested in joining our club?",
-    "I'm very interested in classical music."
-  ]
 }
 </Example>
 
@@ -244,15 +198,8 @@ Output JSON:
 {
   "word": "take care of",
   "meaning_vn": "chăm sóc",
-  "sample_sentence": "Parents take care of their children with love.",
+  "sample_sentences": ["Parents take care of their children with love.", "Nurses take care of patients in the hospital.", "Please take care of the dog while I'm away.", "She takes care of her grandparents every weekend.", "He promised to take care of the houseplants."],
   "synonyms": ["look after", "tend"],
-  "image_idea": "An older sibling helping a younger one tie their shoelaces.",
-  "additional_examples": [
-    "Nurses take care of patients in the hospital.",
-    "Please take care of the dog while I'm away.",
-    "She takes care of her grandparents every weekend.",
-    "He promised to take care of the houseplants."
-  ]
 }
 </Example>
 

@@ -25,7 +25,7 @@ class VocabularySupportService:
         params:
             text (str): Word, phrase and sentence (if any)
         returns:
-            VocabularyResponse: The vocabulary entry with meaning, examples, synonyms, and image prompt
+            VocabularyResponse: The vocabulary entry with meaning, examples, synonyms.
         """
         try:
             program = LLMTextCompletionProgram.from_defaults(
@@ -35,15 +35,16 @@ class VocabularySupportService:
                 llm=self.gemini,
             )
             result = program(text=text)
+            print(11111111111111)
+            print(result)
 
             query = {
                 "user_id": user_id,
                 "word": result.word,
                 "meaning_vn": result.meaning_vn,
-                "sample_sentence": result.sample_sentence,
+                "sample_sentences": result.sample_sentences,
                 "synonyms": result.synonyms,
-                "image_idea": result.image_idea,
-                "additional_examples": result.additional_examples
+                "image_url": '',
             }
             self.collection.insert_one(query)
             return VocabularyResponse(word_id=str(query["_id"]), vocabulary=result)
