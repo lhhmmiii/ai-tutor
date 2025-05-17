@@ -11,3 +11,17 @@ class WritingAgentRequest(BaseModel):
                 "question": "1234555",
             }
         }
+
+class RoleplayParams(BaseModel):
+    topic: str  
+    context: str  
+    ai_role: str  
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "topic": "coffee",
+                "context": "at a coffee shop",
+                "ai_role": "barista",
+            }
+        }
