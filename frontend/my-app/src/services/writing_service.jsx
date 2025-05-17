@@ -97,7 +97,6 @@ export async function WritingAgent(userId, question) {
       user_id: userId,
       question: question,
     };
-
     const { data } = await axios.post(`${API_BASE_URL}/writing_agent`, requestBody, getAuthHeader());
     console.log('Chatbot response received');
     return data;
