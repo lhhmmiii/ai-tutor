@@ -1,4 +1,10 @@
 export default function WordList({ words, onSelect, onDelete }) {
+  const speak = (text) => {
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'en-US'
+    window.speechSynthesis.speak(utterance)
+  }
+
   return (
     <section className="p-6 max-w-6xl mx-auto">
       <h3 className="text-4xl font-extrabold mb-8 text-indigo-900 tracking-wide">
@@ -7,8 +13,8 @@ export default function WordList({ words, onSelect, onDelete }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {words.map((wordObj) => {
-          const { word, vietnamese, imageUrl, example, synonym } = wordObj
-          const exampleText = Array.isArray(example) ? example.join('; ') : example
+          const { word, vietnamese, pronunciation, imageUrl, example, synonym } = wordObj
+          const exampleList = Array.isArray(example) ? example : [example]
           const synonymText = Array.isArray(synonym) ? synonym.join('; ') : synonym
 
           return (
@@ -30,14 +36,48 @@ export default function WordList({ words, onSelect, onDelete }) {
                   onSelect({
                     word,
                     vietnamese,
+                    pronunciation,
                     imageUrl,
-                    example: exampleText,
+                    example: exampleList.join('\n'),
                     synonym: synonymText,
                   })
                 }
                 className="cursor-pointer text-center"
               >
-                <span className="text-2xl mb-2 block">{word}</span>
+                <div className="flex justify-center items-center space-x-2 mb-1">
+                  <span className="text-2xl">{word}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      speak(word)
+                    }}
+                    className="text-indigo-600 hover:text-indigo-800"
+                    aria-label={`Phát âm từ ${word}`}
+                    title={`Nghe phát âm "${word}"`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                {pronunciation && (
+                  <span className="text-gray-500 italic text-sm block mb-1">
+                    {pronunciation}
+                  </span>
+                )}
+
                 <small className="text-indigo-600 italic text-sm tracking-wide">
                   {vietnamese}
                 </small>

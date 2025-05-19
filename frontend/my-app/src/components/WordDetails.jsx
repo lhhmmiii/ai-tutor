@@ -1,4 +1,5 @@
 // src/components/WordDetailsModal.jsx
+
 export default function WordDetails({ wordObj, onClose }) {
   if (!wordObj) return null
 
@@ -22,26 +23,43 @@ export default function WordDetails({ wordObj, onClose }) {
               <td className="p-4 font-semibold text-indigo-900 w-48">Vietnamese Meaning</td>
               <td className="p-4">{wordObj.vietnamese}</td>
             </tr>
-            <tr className="border border-gray-200">
-              <td className="p-4 font-semibold text-indigo-900">Example Sentence</td>
-              <td className="p-4 italic text-gray-700">"{wordObj.example}"</td>
+
+            <tr className="border border-gray-200 align-top">
+              <td className="p-4 font-semibold text-indigo-900">Example Sentences</td>
+              <td className="p-4">
+                <ul className="list-disc pl-5 space-y-1 text-gray-700 italic">
+                  {wordObj.example
+                    .split('\n')
+                    .filter((ex) => ex.trim())
+                    .map((ex, index) => (
+                      <li key={index}>"{ex.trim()}"</li>
+                    ))}
+                </ul>
+              </td>
             </tr>
+
             <tr className="bg-indigo-50 border border-gray-200">
               <td className="p-4 font-semibold text-indigo-900">Synonym</td>
               <td className="p-4">{wordObj.synonym}</td>
             </tr>
+
             <tr className="border border-gray-200">
               <td className="p-4 font-semibold text-indigo-900">Image</td>
               <td className="p-4 text-center">
-                <img
-                  src={wordObj.imageUrl}
-                  alt={wordObj.word}
-                  className="mx-auto rounded-lg shadow-md max-h-48 object-cover"
-                />
+                {wordObj.imageUrl ? (
+                  <img
+                    src={wordObj.imageUrl}
+                    alt={wordObj.word}
+                    className="mx-auto rounded-lg shadow-md max-h-48 object-cover"
+                  />
+                ) : (
+                  <span className="text-gray-400 italic">No image available</span>
+                )}
               </td>
             </tr>
           </tbody>
         </table>
+
         <button
           onClick={onClose}
           className="mt-6 block mx-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition"
