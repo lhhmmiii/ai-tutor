@@ -35,8 +35,6 @@ class VocabularySupportService:
                 llm=self.gemini,
             )
             result = program(text=text)
-            print(11111111111111)
-            print(result)
 
             query = {
                 "user_id": user_id,
@@ -44,6 +42,7 @@ class VocabularySupportService:
                 "meaning_vn": result.meaning_vn,
                 "sample_sentences": result.sample_sentences,
                 "synonyms": result.synonyms,
+                "pronunciation": result.pronunciation,
                 "image_url": '',
             }
             self.collection.insert_one(query)

@@ -19,6 +19,7 @@ llama-index-storage-index-store-mongodb
 llama-index-vector-stores-qdrant
 llama-index-embeddings-cohere
 llama-index-graph-stores-neo4j
+llama-index-tools-tavily-research
 spire-doc
 python-pptx
 Spire.Presentation
