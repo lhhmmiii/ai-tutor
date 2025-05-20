@@ -3,7 +3,7 @@ from .prompts import grammar_check_prompt, level_analysis_prompt, writing_feedba
                     sentence_parsing_prompt, example_generator_prompt, roleplay_prompt,\
                     error_correction_prompt, faq_knowledge_base_prompt, quick_tip_prompt,\
                     fall_to_gemini_prompt, feedback_prompt, conversation_feedback_prompt,\
-                    conversation_agent_prompt, roleplay_param_extraction_prompt
+                    conversation_agent_prompt
 from .llm import gemini
 from .setting import embed_model, setting
 
@@ -31,5 +31,4 @@ __all__ = [
     "roleplay_prompt",
     "conversation_feedback_prompt",
     "conversation_agent_prompt",
-    "roleplay_param_extraction_prompt",
 ]
