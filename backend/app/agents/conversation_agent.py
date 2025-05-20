@@ -20,14 +20,13 @@ class ConversationAgentHandler(BaseAgentHandler):
         )
 
 
-import asyncio
+# import asyncio
 
-user_input = "I want to practice my conversation skills with a native speaker\
-            with topic: 'Ordering food at a restaurant', role: 'waiter', context: 'a restaurant'"
-async def conversation_agent(user_id: str = "", user_input: str = "") -> str:
-    agent = ConversationAgentHandler()
-    return await agent.run(user_input=user_input, user_id=user_id)
+# user_input = "As the customer, I said: 'Could I see the menu, please?'"
+# async def conversation_agent(user_id: str = "", user_input: str = "") -> str:
+#     agent = ConversationAgentHandler()
+#     return await agent.run(user_input=user_input, user_id=user_id)
 
-if __name__ == "__main__":
-    result = asyncio.run(conversation_agent(user_id="123", user_input=user_input))
-    print(result)
+# if __name__ == "__main__":
+#     result = asyncio.run(conversation_agent(user_id="123", user_input=user_input))
+#     print(result)
