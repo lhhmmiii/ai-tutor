@@ -1,5 +1,5 @@
 from .writing_tools import WritingTools
-from .conversation_tool import ConversationTools
+from .conversation_tools import ConversationTools
 
 __all__ = [
     WritingTools,
