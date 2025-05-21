@@ -105,3 +105,18 @@ export async function WritingAgent(userId, question) {
     throw error;
   }
 }
+
+export async function ConversationAgent(userId, question) {
+  try {
+    const requestBody = {
+      user_id: userId,
+      question: question,
+    };
+    const { data } = await axios.post(`${API_BASE_URL}/conversation_agent`, requestBody, getAuthHeader());
+    console.log('Chatbot response received');
+    return data;
+  } catch (error) {
+    console.error('Error calling Conversation Agent:', error);
+    throw error;
+  }
+}

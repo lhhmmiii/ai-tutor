@@ -39,6 +39,33 @@ function GrammarCheck() {
     }
   }
 
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    setLoading(true)
+    try {
+      const user_id = localStorage.getItem('user_id')
+      const fileText = await file.text()
+      const data = await grammar_check(user_id, fileText)
+
+      const issues = Array.isArray(data.issues_found)
+        ? data.issues_found.map(issue => ({
+            original: issue.original,
+            corrected: issue.corrected,
+            explanation: issue.explanation,
+          }))
+        : []
+
+      setCorrectedText(data.corrected_text || '')
+      setResult(issues)
+    } catch (error) {
+      console.error('Error during file grammar check:', error.response?.data || error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="w-full min-h-screen bg-indigo-50 py-10 px-4">
       <Chatbot />
@@ -48,9 +75,15 @@ function GrammarCheck() {
       </h1>
 
       <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row gap-6">
-        {/* Input section with loading */}
+        {/* Input section */}
         <div className="flex-1 relative">
           <TextAreaWithButton text={text} setText={setText} onCheck={handleGrammarCheck} />
+          <input
+            type="file"
+            accept=".txt"
+            onChange={handleFileUpload}
+            className="mt-4"
+          />
           {loading && (
             <div className="flex items-center space-x-2 absolute top-full mt-2 text-blue-600 font-semibold select-none">
               <svg
@@ -78,7 +111,7 @@ function GrammarCheck() {
           )}
         </div>
 
-        {/* Corrected text output */}
+        {/* Corrected output */}
         {correctedText && (
           <div className="flex-1 bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold text-green-700 mb-4">Corrected Text</h2>
