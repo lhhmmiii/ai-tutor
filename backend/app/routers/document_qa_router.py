@@ -42,7 +42,7 @@ async def add_document_to_index(
     is_header: bool = True,
     request: Request = None,
 ) -> Index:
-    index_instance = get_index_instance(user_id = user_id, request = request)
+    index_instance = get_index_instance(user_id=user_id, request=request)
     embed_model = get_embed_model(request)
     index = index_instance.load_index_by_index_id(index_id=index_id)
     await index_instance.add_nodes_to_index(
@@ -56,6 +56,7 @@ async def add_document_to_index(
     index_struct = index.storage_context.index_store.get_index_struct(index_id)
     response = Index(index_id=index.index_id, nodes_dict=index_struct.nodes_dict)
     return response
+
 
 
 # READ
