@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import re
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -147,5 +148,28 @@ def crawl_all(save_dir : str = 'writing/data/grammar/raw'):
     finally:
         driver.quit()
 
+
+def remove_extra_whitespace(text) -> None:
+    """
+    Remove extra whitespace from the text, including leading, trailing, and multiple spaces.
+    """
+    text = re.sub(r'\s+', ' ', text).strip()
+
+def lowercase_text(text) -> None:
+    """
+    Convert all characters in the text to lowercase.
+    """
+    text = text.lower()
+
+def preprocess_folder(folder_input: str, folder_output: str) -> None:
+    for file in os.listdir(folder_input):
+        with open(os.path.join(folder_input, file), "r", encoding="utf-8") as f:
+            text = f.read()
+            processed_text = lowercase_text(remove_extra_whitespace(text))
+            with open(os.path.join(folder_output, file), "w", encoding="utf-8") as f:
+                f.write(processed_text)
+    print("Preprocessing completed successfully.")
+
 if __name__ == "__main__":
     crawl_all()
+    preprocess_folder("app/data/grammar/raw", "app/data/grammar/preprocessed")
