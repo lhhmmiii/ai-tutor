@@ -20,9 +20,9 @@ frontend/my-app/.env.*
 
 # === Data folders ===
 data/
-backend/writing/data/
-!backend/writing/mlops/data/
-!backend/writing/mlops/data/**
+backend/app/data/
+!backend/app/mlops/data/
+!backend/app/mlops/data/**
 
 # === Logs and temp files ===
 *.log
