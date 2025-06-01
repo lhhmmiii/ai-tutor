@@ -15,7 +15,6 @@ from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core import StorageContext
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.retrievers import VectorIndexRetriever
-from llama_index.core.tools.query_engine import QueryEngineTool
 from llama_index.core import KnowledgeGraphIndex
 from llama_index.core.utils import iter_batch
 from llama_index.core.vector_stores import (
@@ -31,7 +30,7 @@ from app.services.extract_html_file_service import HtmlFile
 from app.services.extract_office_file_service import OfficeFile
 from app.services.extract_table_file_service import TableFile
 from app.services.user_service import User
-from app.helpers.embedding_nodes_helper import get_node_with_embedding
+from app.helpers.document_qa_helper import get_node_with_embedding
 from app.helpers.post_process_nodes_helper import create_node_postprocessor
 from app.utils.file_utils import load_file
 
@@ -606,23 +605,3 @@ class DocumentQA(BaseQA):
                 ref_doc_ids.append(key)
         return ref_doc_ids
 
-    def create_query_engine_tool(self, index: VectorStoreIndex) -> QueryEngineTool:
-        """Create a query engine tool for document-based question answering.
-        
-        This method creates a QueryEngineTool instance that can be used to answer
-        questions based on the documents in the index. The tool is configured to
-        only provide answers from the indexed documents.
-        
-        Args:
-            index (VectorStoreIndex): The index to create the query engine from
-            
-        Returns:
-            QueryEngineTool: A tool configured for document-based question answering
-        """
-        query_engine = index.as_query_engine()
-        query_engine_tool = QueryEngineTool.from_defaults(
-            query_engine=query_engine,
-            name='DocumentQA',
-            description='Only answer the question from the documents'
-        )
-        return query_engine_tool
