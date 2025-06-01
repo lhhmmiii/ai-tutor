@@ -1,13 +1,18 @@
 from llama_index.core.llms import ChatMessage
+from typing import List, Callable, Optional, Any
 from app.config.prompts import english_vietnamese_dictionary_prompt, grammar_explanation_prompt, sentence_parsing_prompt,\
                                    example_generator_prompt, error_correction_prompt,\
                                    feedback_prompt, faq_knowledge_base_prompt, quick_tip_prompt, fall_to_gemini_prompt
 
-from typing import List, Callable, Optional, Any
+from app.services.document_qa_service import DocumentQA
+from app.helpers.document_qa_helper import load_index_by_index_id, create_query_engine_tool
+from app.dependencies import initialize_storage_context
 
 class WritingTools:
-    def __init__(self, llm : Optional[Any] = None):
+    def __init__(self, llm : Optional[Any] = None, index_id: str = ""):
         self.llm = llm
+        self.storage_context = initialize_storage_context(db_name = "Vocabulary", collection_name = "Vocabulary")
+        self.index = load_index_by_index_id(self.storage_context, index_id)
         
 
     def _run_tool(self, prompt: str, user_input: str) -> str:
@@ -19,7 +24,7 @@ class WritingTools:
     
     def get_tools(self) -> List[Callable]:
         return [
-            self.dictionary_tool,
+            self.vocabulary_tool,
             self.grammar_explanation_tool,
             self.sentence_parsing_tool,
             self.example_generator,
@@ -30,16 +35,15 @@ class WritingTools:
             self.fallback_to_gemini,
         ]
 
-    def dictionary_tool(self, word: str) -> str:
+    def vocabulary_tool(self, word: str) -> str:
         """
         Look up an English word and return:
-        - Meaning in English and Vietnamese
+        - Meaning in English
         - Pronunciation
-        - Part of speech
-        - Example sentence
-        - Synonyms and antonyms
         """
-        return self._run_tool(english_vietnamese_dictionary_prompt, word)
+        print(111111111111111)
+        return create_query_engine_tool(index = self.index, name = "English Vocabulary", 
+                                        description = "Only answer the question from the documents")
 
     def grammar_explanation_tool(self, grammar_point: str) -> str:
         """
