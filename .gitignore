@@ -63,3 +63,4 @@ coverage/
 # === Others ===
 .idea/
 backend/app/mlops/evaluation/GrammarTestset.csv
+backend/test.py
