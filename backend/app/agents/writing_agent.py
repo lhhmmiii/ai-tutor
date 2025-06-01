@@ -10,7 +10,7 @@ from app.agents.base import BaseAgentHandler
 
 class WritingAgentHandler(BaseAgentHandler):
     def __init__(self, verbose: bool = True):
-        tools = WritingTools(llm=gemini).get_tools()
+        tools = WritingTools(llm=gemini, index_id = "5fccf9d5-fd76-4f10-b405-d26ee98938cb").get_tools()
         super().__init__(
             agent_name="WritingAgent",
             llm=gemini,
